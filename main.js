@@ -1,97 +1,27 @@
 
+
 state = {
     player: {
         name: "Player",
         monsterArray: [squirrel],
-        mutationArray: [],
+        mutationArray: [mutation1, mutation2],
     },
 
     opponent: {
         name: "Opponent",
-        monsterArray: [squirrel],
+        monsterArray: [chipmunk],
     },
     playerMonster: false,
     enemyMonster: false,
     targetedMonster: 0,
+    targetedPlayerMonster: 0,
+    playerUsedMutationThisTurn: false,
 }
 
-
-
-
-function createDiv(classListName, textString=false) {
-    let tempDiv = document.createElement('div');
-    tempDiv.classList.add(classListName);
-    if (textString) {
-        tempDiv.textContent = textString
-    }
-    return tempDiv
-}
-//(stateObj, monsterIndex, moveIndex) 
-function createMoveDiv(stateObj, monsterIndex, moveIndex)  {
-    let monster = stateObj.player.monsterArray[monsterIndex]
-    let move =  monster.moves[moveIndex]
-    const moveDiv = createDiv("move-div")
-    const moveName = createDiv("move-name-div", move.name)
-    const moveEnergy = createDiv("move-energy-cost-div", (move.energyGained - move.energyReq))
-    const moveText = createDiv("move-energy-cost-div", move.text(stateObj, monsterIndex, moveIndex))
-    moveDiv.append(moveEnergy, moveName, moveText)
-    return moveDiv
-}
-
-function createMonsterDiv(stateObj, monsterIndex, isPlayer) {
-    let monster = (isPlayer) ? stateObj.player.monsterArray[monsterIndex] : stateObj.opponent.monsterArray[monsterIndex]
-
-    const monsterDiv = createDiv("monster-div")
-    const monsterTopRowDiv = createDiv("monster-top-row-div")
-    const monsterNameDiv = createDiv("monster-name-div", monster.name)
-    const monsterEnergyDiv = createDiv("monster-energy-div", ("Energy: " + monster.currentEnergy))
-    monsterNameDiv.onclick = async function(){
-        console.log("clicked name div")
-    }
-    const monsterHPDiv = createDiv("monster-hp", ("HP: " + monster.currentHP + "/" + monster.maxHP))
-    monsterTopRowDiv.append(monsterNameDiv, monsterHPDiv, monsterEnergyDiv)
-
-    const monsterMovesDiv = createDiv("monster-moves-div")
-    for (let i=0; i<monster.moves.length; i++) {
-        let moveDiv = createMoveDiv(stateObj, monsterIndex, i)
-        if (isPlayer && monster.currentEnergy >= monster.moves[i].energyReq) {
-            console.log("creating move")
-            moveDiv.onclick = async function() {
-                console.log("clicked moveDiv")
-                console.log(monster.moves[i])
-                await monster.moves[i].action(stateObj, monsterIndex, i)
-            }
-        }
-        monsterMovesDiv.append(moveDiv)
-    }
-
-    monsterDiv.append(monsterTopRowDiv, monsterMovesDiv)
-    return monsterDiv
-}
-
-function createScreenDiv(stateObj) {
-    document.body.innerHTML = ''
-
-    const screenDiv = createDiv("screen-div")
-
-    const playerSideDiv = createDiv("side-div")
-    for (i=0; i < stateObj.player.monsterArray.length; i++) {
-        monsterDiv = createMonsterDiv(stateObj, i, true)
-        playerSideDiv.append(monsterDiv)
-    }
-
-    const opponentSideDiv = createDiv("side-div")
-    for (i=0; i < stateObj.opponent.monsterArray.length; i++) {
-        monsterDiv = createMonsterDiv(stateObj, i, false)
-        opponentSideDiv.append(monsterDiv)
-    }
-    
-    screenDiv.append(playerSideDiv, opponentSideDiv)
-    document.body.append(screenDiv)
-}
 
 async function updateState(newStateObj) {
     state = {...newStateObj}
+    stateObj = await checkForDeath(state)
     createScreenDiv(state)
     return state
 }
@@ -104,12 +34,10 @@ async function gainEnergy(stateObj, monsterIndex, moveIndex) {
         monster.currentEnergy -= move.energyReq 
         monster.currentEnergy += move.energyGained
       })
-      console.log(stateObj.player.monsterArray[monsterIndex].name + " has " + stateObj.player.monsterArray[monsterIndex].currentEnergy + " after move")
       return stateObj
 }
 
 async function dealDamage(stateObj, DamageNumber) {
-    console.log("inside deal damage, monster has " + stateObj.player.monsterArray[0].currentEnergy)
     stateObj = immer.produce(stateObj, (newState) => {   
         newState.opponent.monsterArray[newState.targetedMonster].currentHP -= DamageNumber  
     })
@@ -123,4 +51,157 @@ async function gainNextAttackDamage(stateObj, playerMonsterIndex, damageToGain) 
     return stateObj
 }
 
-createScreenDiv(state)
+async function attackDamageIncrease(stateObj, playerMonsterIndex, moveIndex, amountToIncrease)  {
+    stateObj = immer.produce(stateObj, (newState) => {   
+        newState.player.monsterArray[playerMonsterIndex].moves[moveIndex].damageDealt += amountToIncrease  
+      })
+    return stateObj
+}
+
+async function attackTimesIncrease(stateObj, playerMonsterIndex, moveIndex, amountToIncrease)  {
+    stateObj = immer.produce(stateObj, (newState) => {   
+        newState.player.monsterArray[playerMonsterIndex].moves[moveIndex].damageTimes += amountToIncrease  
+      })
+    return stateObj
+}
+
+async function monsterMoved(stateObj, playerMonsterIndex)  {
+    stateObj = immer.produce(stateObj, (newState) => {   
+        newState.player.monsterArray[playerMonsterIndex].hasMoved = true  
+      })
+    return stateObj
+}
+
+async function playerUsedMutation(stateObj)  {
+    stateObj = immer.produce(stateObj, (newState) => {   
+        newState.playerUsedMutationThisTurn = true  
+      })
+    return stateObj
+}
+
+function randomIntegerInRange(min, max) {
+    return Math.floor(Math.random() * (max-min + 1) + min)
+}
+
+async function enemyDealDamage(stateObj, DamageNumber) {
+    let monsterIndex = stateObj.player.monsterArray.findIndex(monster => monster.currentHP <= DamageNumber)
+    let chosenIndex = (monsterIndex !== -1 ) ? monsterIndex : Math.floor(Math.random() * stateObj.player.monsterArray.length)
+    stateObj = immer.produce(stateObj, (newState) => {   
+        newState.player.monsterArray[chosenIndex].currentHP -= DamageNumber  
+    })
+      return stateObj
+}
+
+async function enemyHeal(stateObj, monsterIndex, healNumber) {
+    let missingHP = stateObj.opponent.monsterArray[monsterIndex].maxHP - stateObj.opponent.monsterArray[monsterIndex].currentHP
+    stateObj = immer.produce(stateObj, (newState) => {   
+        if (missingHP >= healNumber) {
+            newState.opponent.monsterArray[monsterIndex].currentHP += healNumber
+        } else {
+            newState.opponent.monsterArray[monsterIndex].currentHP = newState.opponent.monsterArray[monsterIndex].maxHP
+        }
+          
+    })
+    return stateObj
+}
+
+async function enemyGainEnergy(stateObj, monsterIndex, moveIndex) {
+    stateObj = immer.produce(stateObj, (newState) => {
+        let monster = newState.opponent.monsterArray[monsterIndex]
+        let move = monster.moves[moveIndex]
+        monster.currentEnergy -= move.energyReq 
+        monster.currentEnergy += move.energyGained
+      })
+      return stateObj
+}
+
+async function pickEnemyMove(stateObj, monsterIndex) {
+    let monster = stateObj.opponent.monsterArray[monsterIndex]
+    let currentMoveIndex = 0
+    for (let i=0; i < monster.moves.length; i++) {
+        if (monster.moves[i].energyReq <= monster.currentEnergy) {
+            currentMoveIndex = i
+        }
+    }
+    return currentMoveIndex
+}
+
+async function resetPlayerTurn(stateObj) {
+    stateObj = immer.produce(stateObj, (newState) => {
+        newState.playerUsedMutationThisTurn = false;
+        newState.player.monsterArray.forEach(monster => {
+            monster.hasMoved = false;
+        });
+    })
+    return stateObj
+}
+
+async function enemyTurn(stateObj) {
+    console.log(stateObj.opponent.monsterArray.length)
+    for (let i =0; i < stateObj.opponent.monsterArray.length; i++) {
+        enemyMoveIndex = await pickEnemyMove(stateObj, i)
+        stateObj = await stateObj.opponent.monsterArray[i].moves[enemyMoveIndex].action(stateObj, i, enemyMoveIndex)
+    }
+    stateObj = await resetPlayerTurn(stateObj)
+    await updateState(stateObj)
+}
+
+async function chooseEnemy(stateObj) {
+    let index = Math.floor(Math.random() * enemyArray.length)
+    stateObj = immer.produce(stateObj, (newState) => {
+        newState.opponent.monsterArray = [enemyArray[index]]
+    })
+    return stateObj
+}
+
+async function resetPlayerStats(stateObj) {
+    stateObj = immer.produce(stateObj, (newState) => {
+        newState.targetedPlayerMonster = 0
+        newState.targetedMonster = 0
+        newState.playerUsedMutationThisTurn = false
+        newState.player.monsterArray.forEach(monster => {
+            monster.hasMoved = false;
+            monster.currentHP = monster.maxHP
+            monster.currentEnergy = 0;
+        })
+    })
+    return stateObj
+}
+
+async function startEncounter(stateObj) {
+    stateObj = await chooseEnemy(stateObj)
+    stateObj = await resetPlayerStats(stateObj)
+    stateObj = await updateState(stateObj)
+    await createScreenDiv(stateObj)
+}
+
+async function checkForDeath(stateObj) {
+    stateObj = immer.produce(stateObj, (newState) => {
+        for (let i = newState.player.monsterArray.length - 1; i >= 0; i--) {
+            let monster = newState.player.monsterArray[i];
+            if (monster.currentHP <= 0) {
+                console.log(monster.name + " fainted!");
+                newState.player.monsterArray.splice(i, 1);
+            }
+        }
+
+        for (let i = newState.opponent.monsterArray.length - 1; i >= 0; i--) {
+            let monster = newState.opponent.monsterArray[i];
+            if (monster.currentHP <= 0) {
+                console.log(monster.name + " fainted!");
+                newState.opponent.monsterArray.splice(i, 1);
+            }
+        }
+    })
+
+    if (stateObj.player.monsterArray.length < 1) {
+        console.log("player lost!")
+        stateObj = await startEncounter(stateObj)
+    } else if (stateObj.opponent.monsterArray.length < 1) {
+        console.log("player won!")
+        stateObj = await startEncounter(stateObj)
+    }
+    return stateObj
+}
+
+startEncounter(state)

@@ -1,4 +1,120 @@
 .move-div {
-    background-color: green;
-    color: white
+    background-color: rgb(83, 83, 83);
+    color: rgb(217, 217, 217);
+    text-align: center;
+    transition: 0.5s;
+    background-size: 200% auto;
+    border-radius: 10px;
+    width: 20vw;
+    height: 10vh;
+    margin: 0.5vmin;
+    font-size: 2.5vmin;
 }
+
+.player-move {
+    background-image: linear-gradient(to right, #314755 0%, #26a0da  51%, #314755  100%);
+    color: white;
+}
+
+@media (hover: hover) {
+    .player-move:hover {
+        background-position: right center; /* change the direction of the change here */
+        text-decoration: none;
+        cursor: pointer;
+    }
+}
+
+.column {
+    display: flex;
+    flex-direction: column;
+}
+
+.centered {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.space-evenly {
+    justify-content: space-evenly;
+}
+
+.row {
+    display: flex;
+    flex-direction: row;
+}
+
+.move-text-div {
+    margin-top: 0.8vh;
+}
+
+.monster-energy-div {
+    padding: 0.5vmin;
+    background-color: purple;
+    color: white;
+    border-radius: 3px;
+}
+
+.mutation-div {
+    background-color: rgb(171, 171, 171);
+    height: 15vh;
+    width: 20vw;
+    margin: 3vmin;
+    font-size: 3vmin;
+    padding: 0.5vmin;
+}
+
+.mutation-div-active {
+    background-color: rgb(87, 248, 87);
+}
+
+@media (hover: hover) {
+    .mutation-div-active:hover {
+        background-color: rgb(1, 158, 1); /* change the direction of the change here */
+        color: rgb(74, 74, 74);
+        cursor: pointer;
+    }
+}
+
+.mutations-array-div {
+    height: 20vh;
+    width: 80vw;
+}
+
+.monsters-div {
+    height: 60vh;
+    width: 95vw;
+}
+ 
+ 
+/* 
+const moveDiv = createDiv("move-div")
+    const moveName = createDiv("move-name-div", move.name)
+    const moveEnergy = createDiv("move-energy-cost-div", (move.energyGained - move.energyReq))
+    const moveText = createDiv("move-energy-cost-div", move.text(stateObj, monsterIndex, moveIndex))
+    moveDiv.append(moveEnergy, moveName, moveText)
+    return moveDiv
+}
+
+function createMonsterDiv(stateObj, monsterIndex, isPlayer) {
+    let monster = (isPlayer) ? stateObj.player.monsterArray[monsterIndex] : stateObj.opponent.monsterArray[monsterIndex]
+
+    const monsterDiv = createDiv("monster-div")
+    const monsterTopRowDiv = createDiv("monster-top-row-div")
+    const monsterNameDiv = createDiv("monster-name-div", monster.name)
+    const monsterEnergyDiv = createDiv("monster-energy-div", ("Energy: " + monster.currentEnergy))
+    monsterNameDiv.onclick = async function(){
+        console.log("clicked name div")
+    }
+    const monsterHPDiv = createDiv("monster-hp", ("HP: " + monster.currentHP + "/" + monster.maxHP))
+    monsterTopRowDiv.append(monsterNameDiv, monsterHPDiv, monsterEnergyDiv)
+
+    const monsterMovesDiv = createDiv("monster-moves-div")
+    for (let i=0; i<monster.moves.length; i++) {
+        let moveDiv = createMoveDiv(stateObj, monsterIndex, i)
+        if (isPlayer && monster.currentEnergy >= monster.moves[i].energyReq) {
+            console.log("creating move")
+            moveDiv.onclick = async function() {
+                console.log("clicked moveDiv")
+                console.log(monster.mov */
