@@ -36,12 +36,21 @@
     text-align: center;
 }
 
+.player-targeted {
+    border: 5px dashed blue;
+}
+
+.opponent-targeted {
+    border: 5px dashed red;
+}
+
 .avatar {
     width: 12vmin;
     height: 12vmin;
     max-width: 9vw;
     margin: 0.2vmin;
     flex-shrink: -1;
+    border-radius: 2px;
     opacity: 1;
     transition: 0.5s all;
   }

@@ -59,6 +59,23 @@ function createMonsterDiv(stateObj, monsterIndex, isPlayer) {
     avatarDiv.classList.add("avatar");
     avatarDiv.src = monster.avatar;
     avatarDiv.setAttribute("draggable", "false")
+    if (isPlayer) {
+        if (monsterIndex === stateObj.targetedPlayerMonster) {
+            avatarDiv.classList.add("player-targeted")
+        } else {
+            avatarDiv.onclick = async function() {
+                await changePlayerMonster(stateObj, monsterIndex)
+            }
+        }
+    } else {
+        if (monsterIndex === stateObj.targetedMonster) {
+            avatarDiv.classList.add("opponent-targeted")
+        } else {
+            avatarDiv.onclick = async function() {
+                await changeEnemyMonster(stateObj, monsterIndex)
+            }
+        }
+    }
 
     monsterDiv.append(monsterTopRowDiv, monsterEnergyDiv, avatarDiv, monsterMovesDiv)
     return monsterDiv

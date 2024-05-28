@@ -20,8 +20,8 @@ state = {
 
 
 async function updateState(newStateObj) {
+    newStateObj = await checkForDeath(newStateObj)
     state = {...newStateObj}
-    stateObj = await checkForDeath(state)
     createScreenDiv(state)
     return state
 }
@@ -154,6 +154,20 @@ async function chooseEnemy(stateObj) {
     return stateObj
 }
 
+async function changePlayerMonster(stateObj, monIndex) {
+    stateObj = immer.produce(stateObj, (newState) => {
+        newState.targetedPlayerMonster = monIndex;
+    })
+    await updateState(stateObj)
+}
+
+async function changeEnemyMonster(stateObj, monIndex) {
+    stateObj = immer.produce(stateObj, (newState) => {
+        newState.targetedMonster = monIndex;
+    })
+    await updateState(stateObj)
+}
+
 function getUniqueRandomIndexes(array, count) {
     let indexes = [];
     while (indexes.length < count) {
@@ -193,6 +207,7 @@ async function checkForDeath(stateObj) {
             if (monster.currentHP <= 0) {
                 console.log(monster.name + " fainted!");
                 newState.player.monsterArray.splice(i, 1);
+                newState.targetedPlayerMonster = 0
             }
         }
 
@@ -201,6 +216,7 @@ async function checkForDeath(stateObj) {
             if (monster.currentHP <= 0) {
                 console.log(monster.name + " fainted!");
                 newState.opponent.monsterArray.splice(i, 1);
+                newState.targetedMonster = 0
             }
         }
     })
