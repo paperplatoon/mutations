@@ -36,6 +36,16 @@
     text-align: center;
 }
 
+.avatar {
+    width: 12vmin;
+    height: 12vmin;
+    max-width: 9vw;
+    margin: 0.2vmin;
+    flex-shrink: -1;
+    opacity: 1;
+    transition: 0.5s all;
+  }
+
 .space-evenly {
     justify-content: space-evenly;
 }

@@ -113,6 +113,7 @@ chipmunk = {
     maxHP: 30,
     currentEnergy: 0,
     nextAttackDamage: 0,
+    avatar: "img/chipmunk.jpg",
     moves: [
       {...enemyBite},
       {...enemyDemolish}
@@ -126,6 +127,7 @@ vampireBat = {
     maxHP: 30,
     currentEnergy: 0,
     nextAttackDamage: 0,
+    avatar: "img/bat.jpg",
     moves: [
       {...enemyBloodsucker},
       {...enemyDiveBomb}

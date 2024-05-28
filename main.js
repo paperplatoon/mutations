@@ -3,13 +3,13 @@
 state = {
     player: {
         name: "Player",
-        monsterArray: [squirrel],
+        monsterArray: [squirrel, squirrel],
         mutationArray: [mutation1, mutation2],
     },
 
     opponent: {
         name: "Opponent",
-        monsterArray: [chipmunk],
+        monsterArray: [chipmunk, vampireBat],
     },
     playerMonster: false,
     enemyMonster: false,
@@ -147,11 +147,22 @@ async function enemyTurn(stateObj) {
 }
 
 async function chooseEnemy(stateObj) {
-    let index = Math.floor(Math.random() * enemyArray.length)
+    const [index1, index2] = getUniqueRandomIndexes(enemyArray, 2);
     stateObj = immer.produce(stateObj, (newState) => {
-        newState.opponent.monsterArray = [enemyArray[index]]
+        newState.opponent.monsterArray = [enemyArray[index1], enemyArray[index2]];
     })
     return stateObj
+}
+
+function getUniqueRandomIndexes(array, count) {
+    let indexes = [];
+    while (indexes.length < count) {
+        let index = Math.floor(Math.random() * array.length);
+        if (!indexes.includes(index)) {
+            indexes.push(index);
+        }
+    }
+    return indexes;
 }
 
 async function resetPlayerStats(stateObj) {

@@ -55,7 +55,12 @@ function createMonsterDiv(stateObj, monsterIndex, isPlayer) {
         monsterMovesDiv.append(moveDiv)
     }
 
-    monsterDiv.append(monsterTopRowDiv, monsterEnergyDiv, monsterMovesDiv)
+    const avatarDiv = document.createElement('img');
+    avatarDiv.classList.add("avatar");
+    avatarDiv.src = monster.avatar;
+    avatarDiv.setAttribute("draggable", "false")
+
+    monsterDiv.append(monsterTopRowDiv, monsterEnergyDiv, avatarDiv, monsterMovesDiv)
     return monsterDiv
 }
 
@@ -65,15 +70,15 @@ function createScreenDiv(stateObj) {
     const screenDiv = createDiv(["screen-div", "column"])
     const monstersDiv = createDiv(["monsters-div", "row", "space-evenly"])
 
-    const playerSideDiv = createDiv(["side-div"])
+    const playerSideDiv = createDiv(["side-div", "row", "space-evenly"])
     for (i=0; i < stateObj.player.monsterArray.length; i++) {
-        monsterDiv = createMonsterDiv(stateObj, i, true)
+        let monsterDiv = createMonsterDiv(stateObj, i, true)
         playerSideDiv.append(monsterDiv)
     }
 
-    const opponentSideDiv = createDiv(["side-div"])
+    const opponentSideDiv = createDiv(["side-div", "row", "space-evenly"])
     for (i=0; i < stateObj.opponent.monsterArray.length; i++) {
-        monsterDiv = createMonsterDiv(stateObj, i, false)
+        let monsterDiv = createMonsterDiv(stateObj, i, false)
         opponentSideDiv.append(monsterDiv)
     }
     

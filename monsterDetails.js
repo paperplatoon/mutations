@@ -77,6 +77,7 @@ plotRevenge = {
 
 squirrel = {
     name: "Squirrel",
+    avatar: "img/squirrel.jpg",
     currentHP: 40,
     maxHP: 40,
     currentEnergy: 0,
