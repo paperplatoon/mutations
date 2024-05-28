@@ -82,16 +82,21 @@ function createMonsterDiv(stateObj, monsterIndex, isPlayer) {
 }
 
 function createScreenDiv(stateObj) {
+    console.log("creating screen div")
     document.body.innerHTML = ''
 
     const screenDiv = createDiv(["screen-div", "column"])
     const monstersDiv = createDiv(["monsters-div", "row", "space-evenly"])
 
     const playerSideDiv = createDiv(["side-div", "row", "space-evenly"])
-    for (i=0; i < stateObj.player.monsterArray.length; i++) {
-        let monsterDiv = createMonsterDiv(stateObj, i, true)
-        playerSideDiv.append(monsterDiv)
+    console.log(stateObj.player.monsterArray)
+    if (stateObj.player.monsterArray) {
+        for (i=0; i < stateObj.player.monsterArray.length; i++) {
+            let monsterDiv = createMonsterDiv(stateObj, i, true)
+            playerSideDiv.append(monsterDiv)
+        }
     }
+    
 
     const opponentSideDiv = createDiv(["side-div", "row", "space-evenly"])
     for (i=0; i < stateObj.opponent.monsterArray.length; i++) {

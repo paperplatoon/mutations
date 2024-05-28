@@ -12,7 +12,7 @@ swipe = {
       energyReq: 0,
       type: "attack",
       energyGained: 1,
-      damageDealt: 7,
+      damageDealt: 30,
       damageTimes: 1,
       upgrades: 0,
       action: async (stateObj, monsterIndex, moveIndex) => {

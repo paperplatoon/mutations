@@ -197,7 +197,7 @@ async function startEncounter(stateObj) {
     stateObj = await chooseEnemy(stateObj)
     stateObj = await resetPlayerStats(stateObj)
     stateObj = await updateState(stateObj)
-    await createScreenDiv(stateObj)
+    return stateObj
 }
 
 async function checkForDeath(stateObj) {
