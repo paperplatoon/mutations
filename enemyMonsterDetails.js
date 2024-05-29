@@ -66,7 +66,7 @@ enemyBloodsucker = {
     },
     energyReq: 0,
     energyGained: 1,
-    damageDealt: 4,
+    damageDealt: 5,
     damageTimes: 1,
     upgrades: 0,
     action: async (stateObj, monsterIndex, moveIndex) => {
@@ -86,7 +86,7 @@ enemyDiveBomb = {
     text: (stateObj, monsterIndex, moveIndex)  => { 
       let monster = stateObj.opponent.monsterArray[monsterIndex]
       let move =  monster.moves[moveIndex]
-      let textString = `Deal ${move.damageDealt + monster.nextAttackDamage} damage. Heal `;
+      let textString = `Deal ${move.damageDealt + monster.nextAttackDamage} damage.`;
       if (move.damageTimes > 1) {
         textString += ` ${move.damageTimes} times`
       }

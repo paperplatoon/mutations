@@ -91,7 +91,7 @@ function createScreenDiv(stateObj) {
     const playerSideDiv = createDiv(["side-div", "row", "space-evenly"])
     console.log(stateObj.player.monsterArray)
     if (stateObj.player.monsterArray) {
-        for (i=0; i < stateObj.player.monsterArray.length; i++) {
+        for (let i=0; i < stateObj.player.monsterArray.length; i++) {
             let monsterDiv = createMonsterDiv(stateObj, i, true)
             playerSideDiv.append(monsterDiv)
         }
@@ -99,14 +99,14 @@ function createScreenDiv(stateObj) {
     
 
     const opponentSideDiv = createDiv(["side-div", "row", "space-evenly"])
-    for (i=0; i < stateObj.opponent.monsterArray.length; i++) {
+    for (let i=0; i < stateObj.opponent.monsterArray.length; i++) {
         let monsterDiv = createMonsterDiv(stateObj, i, false)
         opponentSideDiv.append(monsterDiv)
     }
     
     const mutationsDiv = createDiv(["mutations-array-div", "row", "centered"])
-    for (i=0; i < stateObj.player.mutationArray.length; i++) {
-        mutateDiv = createMutationDiv(stateObj, stateObj.player.mutationArray[i])
+    for (let i=0; i < stateObj.player.mutationArray.length; i++) {
+        mutateDiv = createMutationDiv(stateObj, stateObj.player.mutationArray[i], i)
         mutationsDiv.append(mutateDiv)
     }
     endTurnButton = createEndTurnButton(stateObj)
@@ -117,7 +117,7 @@ function createScreenDiv(stateObj) {
     document.body.append(screenDiv)
 }
 
-function createMutationDiv(stateObj, mutation) {
+function createMutationDiv(stateObj, mutation, mutationArrayIndex) {
     const mutationDiv = createDiv(["mutation-div", "column", "centered", "space-evenly"])
     const mutationNameDiv = createDiv(["mutation-name", "centered"], mutation.name)
     const mutationTextDiv = createDiv(["mutation-text", "centered"], mutation.text)
@@ -125,7 +125,7 @@ function createMutationDiv(stateObj, mutation) {
     if (stateObj.playerUsedMutationThisTurn === false) {
         mutationDiv.onclick = async function(){
             console.log("clicked mutation div")
-            await mutation.action(stateObj)
+            await mutation.action(stateObj, mutationArrayIndex)
         }
         mutationDiv.classList.add("mutation-div-active")
     }

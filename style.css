@@ -45,8 +45,8 @@
 }
 
 .avatar {
-    width: 12vmin;
-    height: 12vmin;
+    width: 22vmin;
+    height: 22vmin;
     max-width: 9vw;
     margin: 0.2vmin;
     flex-shrink: -1;
@@ -89,7 +89,7 @@
 }
 
 @media (hover: hover) {
-    .mutation-div-active:hover {
+    .mutation-div-active:hover, .end-turn-button:hover {
         background-color: rgb(1, 158, 1); /* change the direction of the change here */
         color: rgb(74, 74, 74);
         cursor: pointer;
@@ -97,8 +97,16 @@
 }
 
 .mutations-array-div {
+    margin-top: 5vh;
     height: 20vh;
     width: 80vw;
+}
+
+.end-turn-button {
+    height: 15vh;
+    width: 10vw;
+    background-color: rgb(87, 248, 87);
+
 }
 
 .monsters-div {
