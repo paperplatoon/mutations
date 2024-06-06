@@ -78,9 +78,9 @@
 .mutation-div {
     background-color: rgb(171, 171, 171);
     height: 15vh;
-    width: 20vw;
+    width: 18vw;
     margin: 3vmin;
-    font-size: 3vmin;
+    font-size: 2.5vmin;
     padding: 0.5vmin;
 }
 
@@ -113,35 +113,23 @@
     height: 60vh;
     width: 95vw;
 }
- 
- 
-/* 
-const moveDiv = createDiv("move-div")
-    const moveName = createDiv("move-name-div", move.name)
-    const moveEnergy = createDiv("move-energy-cost-div", (move.energyGained - move.energyReq))
-    const moveText = createDiv("move-energy-cost-div", move.text(stateObj, monsterIndex, moveIndex))
-    moveDiv.append(moveEnergy, moveName, moveText)
-    return moveDiv
+
+.change-status-button, .choose-monster-button {
+    width: 20vw;
+    height: 5vh;
+    padding: 0.5vmin;
+    background-color: rgb(0, 68, 104);
+    color: rgb(232, 232, 232);
+    text-align: center;
+    cursor: pointer;
+    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+    transition: all 0.5s;
+    margin: 0.5vmin
 }
 
-function createMonsterDiv(stateObj, monsterIndex, isPlayer) {
-    let monster = (isPlayer) ? stateObj.player.monsterArray[monsterIndex] : stateObj.opponent.monsterArray[monsterIndex]
-
-    const monsterDiv = createDiv("monster-div")
-    const monsterTopRowDiv = createDiv("monster-top-row-div")
-    const monsterNameDiv = createDiv("monster-name-div", monster.name)
-    const monsterEnergyDiv = createDiv("monster-energy-div", ("Energy: " + monster.currentEnergy))
-    monsterNameDiv.onclick = async function(){
-        console.log("clicked name div")
+@media (hover: hover) {
+    .change-status-button:hover, .choose-monster-button:hover {
+        background-color: rgb(0, 108, 165);
+        color: rgb(255, 255, 255);
     }
-    const monsterHPDiv = createDiv("monster-hp", ("HP: " + monster.currentHP + "/" + monster.maxHP))
-    monsterTopRowDiv.append(monsterNameDiv, monsterHPDiv, monsterEnergyDiv)
-
-    const monsterMovesDiv = createDiv("monster-moves-div")
-    for (let i=0; i<monster.moves.length; i++) {
-        let moveDiv = createMoveDiv(stateObj, monsterIndex, i)
-        if (isPlayer && monster.currentEnergy >= monster.moves[i].energyReq) {
-            console.log("creating move")
-            moveDiv.onclick = async function() {
-                console.log("clicked moveDiv")
-                console.log(monster.mov */
+}

@@ -1,10 +1,16 @@
-enemyBite = {
+//enemy that gains strength and last attack is a multi-hit
+//enemy that deals more damage when HP is low
+//enemy that gains Dex to scale too fast
+//
+
+
+bite = {
     name: "Bite",
     type: "attack",
-    text: (stateObj, monsterIndex, moveIndex)  => { 
-      let monster = stateObj.opponent.monsterArray[monsterIndex]
+    text: (monsterArray, monsterIndex, moveIndex)  => { 
+      let monster = monsterArray[monsterIndex]
       let move =  monster.moves[moveIndex]
-      let textString = `Deal ${move.damageDealt + monster.nextAttackDamage} damage`;
+      let textString = `Deal ${calcMonsterDamage(monster, move)} damage`;
       if (move.damageTimes > 1) {
         textString += ` ${move.damageTimes} times`
       }
@@ -12,27 +18,28 @@ enemyBite = {
     },
     energyReq: 0,
     energyGained: 1,
-    damageDealt: 10,
+    damage: 10,
     damageTimes: 1,
     upgrades: 0,
     energyCost: 1,
-    action: async (stateObj, monsterIndex, moveIndex) => {
-      let damage = stateObj.opponent.monsterArray[monsterIndex].moves[moveIndex].damageDealt + stateObj.opponent.monsterArray[monsterIndex].nextAttackDamage
-      let damageTimes = stateObj.opponent.monsterArray[monsterIndex].moves[moveIndex].damageTimes
-      stateObj = await enemyGainEnergy(stateObj, monsterIndex, moveIndex);
-      stateObj = await enemyDealDamage(stateObj, (damage*damageTimes))
+    action: async (stateObj, monsterIndex, moveIndex, isPlayer) => {
+      stateObj = await gainEnergy(stateObj, monsterIndex, moveIndex, isPlayer);
+      stateObj = await dealDamage(stateObj, monsterIndex, moveIndex, isPlayer)
+      stateObj = await monsterMoved(stateObj, monsterIndex, isPlayer)
       await updateState(stateObj);
-      return stateObj
+      if (!isPlayer) {
+        return stateObj
+      }
     }
 }
 
-enemyDemolish = {
+demolish = {
     name: "Demolish",
     type: "attack",
-    text: (stateObj, monsterIndex, moveIndex)  => { 
-      let monster = stateObj.opponent.monsterArray[monsterIndex]
+    text: (monsterArray, monsterIndex, moveIndex)  => { 
+      let monster = monsterArray[monsterIndex]
       let move =  monster.moves[moveIndex]
-      let textString = `Deal ${move.damageDealt + monster.nextAttackDamage} damage`;
+      let textString = `Deal ${calcMonsterDamage(monster, move)} damage`;
       if (move.damageTimes > 1) {
         textString += ` ${move.damageTimes} times`
       }
@@ -40,99 +47,110 @@ enemyDemolish = {
     },
     energyReq: 4,
     energyGained: 0,
-    damageDealt: 20,
+    damage: 20,
     damageTimes: 1,
     upgrades: 0,
-    action: async (stateObj, monsterIndex, moveIndex) => {
-      let damage = stateObj.opponent.monsterArray[monsterIndex].moves[moveIndex].damageDealt + stateObj.opponent.monsterArray[monsterIndex].nextAttackDamage
-      let damageTimes = stateObj.opponent.monsterArray[monsterIndex].moves[moveIndex].damageTimes
-      stateObj = await enemyGainEnergy(stateObj, monsterIndex, moveIndex);
-      stateObj = await enemyDealDamage(stateObj, (damage*damageTimes))
+    action: async (stateObj, monsterIndex, moveIndex, isPlayer) => {
+      stateObj = await gainEnergy(stateObj, monsterIndex, moveIndex, isPlayer);
+      stateObj = await dealDamage(stateObj, monsterIndex, moveIndex, isPlayer)
+      stateObj = await monsterMoved(stateObj, monsterIndex, isPlayer)
       await updateState(stateObj);
+      if (!isPlayer) {
+        return stateObj
+      }
     }
 }
 
-enemyBloodsucker = {
+bloodsucker = {
     name: "Bloodsucker",
     type: "attack",
-    text: (stateObj, monsterIndex, moveIndex)  => { 
-      let monster = stateObj.opponent.monsterArray[monsterIndex]
+    text: (monsterArray, monsterIndex, moveIndex)  => { 
+      let monster = monsterArray[monsterIndex]
       let move =  monster.moves[moveIndex]
-      let textString = `Deal ${move.damageDealt + monster.nextAttackDamage} damage. Heal ${move.damageDealt + monster.nextAttackDamage} HP`;
+      let textString = `Deal ${calcMonsterDamage(monster, move)} damage `;
       if (move.damageTimes > 1) {
-        textString += ` ${move.damageTimes} times`
+        textString += `${move.damageTimes} times`
       }
+      textString += `. Heal ${calcMonsterDamage(monster, move)} HP`;
       return textString
     },
     energyReq: 0,
     energyGained: 1,
-    damageDealt: 5,
+    damage: 5,
     damageTimes: 1,
     upgrades: 0,
-    action: async (stateObj, monsterIndex, moveIndex) => {
-      let damage = stateObj.opponent.monsterArray[monsterIndex].moves[moveIndex].damageDealt + stateObj.opponent.monsterArray[monsterIndex].nextAttackDamage
-      let damageTimes = stateObj.opponent.monsterArray[monsterIndex].moves[moveIndex].damageTimes
-      stateObj = await enemyGainEnergy(stateObj, monsterIndex, moveIndex);
-      stateObj = await enemyDealDamage(stateObj, (damage*damageTimes))
-      stateObj = await enemyHeal(stateObj, monsterIndex, (damage*damageTimes))
+    action: async (stateObj, monsterIndex, moveIndex, isPlayer) => {
+      let monster = (isPlayer) ? stateObj.player.fightMonsterArray[monsterIndex] : stateObj.opponent.fightMonsterArray[monsterIndex] 
+      let move =  monster.moves[moveIndex]
+      stateObj = await gainEnergy(stateObj, monsterIndex, moveIndex, isPlayer);
+      stateObj = await dealDamage(stateObj, monsterIndex, moveIndex, isPlayer)
+      stateObj = await restoreHP(stateObj, monsterIndex, calcMonsterDamage(monster, move), isPlayer)
       await updateState(stateObj);
-      return stateObj
+      if (!isPlayer) {
+        return stateObj
+      }
     }
 }
 
-enemyDiveBomb = {
+diveBomb = {
     name: "Infection",
     type: "attack",
-    text: (stateObj, monsterIndex, moveIndex)  => { 
-      let monster = stateObj.opponent.monsterArray[monsterIndex]
+    text: (monsterArray, monsterIndex, moveIndex)  => { 
+      let monster = monsterArray[monsterIndex]
       let move =  monster.moves[moveIndex]
-      let textString = `Deal ${move.damageDealt + monster.nextAttackDamage} damage.`;
+      let textString = `Deal ${calcMonsterDamage(monster, move)} damage `;
       if (move.damageTimes > 1) {
-        textString += ` ${move.damageTimes} times`
+        textString += `${move.damageTimes} times`
       }
+      textString += `. Heal ${calcMonsterDamage(monster, move)} HP`;
       return textString
     },
     energyReq: 4,
     energyGained: 0,
-    damageDealt: 15,
+    damage: 15,
     damageTimes: 1,
     upgrades: 0,
-    action: async (stateObj, monsterIndex, moveIndex) => {
-      let damage = stateObj.opponent.monsterArray[monsterIndex].moves[moveIndex].damageDealt + stateObj.opponent.monsterArray[monsterIndex].nextAttackDamage
-      let damageTimes = stateObj.opponent.monsterArray[monsterIndex].moves[moveIndex].damageTimes
-      stateObj = await enemyGainEnergy(stateObj, monsterIndex, moveIndex);
-      stateObj = await enemyDealDamage(stateObj, (damage*damageTimes))
+    action: async (stateObj, monsterIndex, moveIndex, isPlayer) => {
+      stateObj = await gainEnergy(stateObj, monsterIndex, moveIndex, isPlayer);
+      stateObj = await dealDamage(stateObj, monsterIndex, moveIndex, isPlayer)
+      stateObj = await monsterMoved(stateObj, monsterIndex, isPlayer)
       await updateState(stateObj);
-      return stateObj
+      if (!isPlayer) {
+        return stateObj
+      }
     }
 }
 
 chipmunk = {
     name: "Rabid Chipmunk",
-    currentHP: 30,
-    maxHP: 30,
+    currentHP: 35,
+    maxHP: 35,
+    strength: 0,
     currentEnergy: 0,
-    nextAttackDamage: 0,
     avatar: "img/chipmunk.jpg",
     moves: [
-      {...enemyBite},
-      {...enemyDemolish}
+      {...bite},
+      {...demolish}
     ],
-    hasAttacked: false,
+    hasMoved: false,
+    startCombatWithEnergy: 0,
+    nextAttackDamage: 0,
 }
 
 vampireBat = {
     name: "Vampire Bat",
     currentHP: 30,
     maxHP: 30,
+    strength: 0,
     currentEnergy: 0,
-    nextAttackDamage: 0,
     avatar: "img/bat.jpg",
     moves: [
-      {...enemyBloodsucker},
-      {...enemyDiveBomb}
+      {...bloodsucker},
+      {...diveBomb}
     ],
-    hasAttacked: false,
+    hasMoved: false,
+    startCombatWithEnergy: 0,
+    nextAttackDamage: 0,
 }
 
 enemyArray = [chipmunk, vampireBat]

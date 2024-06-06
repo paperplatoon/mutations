@@ -10,15 +10,22 @@ function createDiv(classListArray, textString=false) {
     return tempDiv
 }
 
-function createMoveDiv(stateObj, monsterIndex, moveIndex, isPlayer)  {
-    let monster = (isPlayer) ? stateObj.player.monsterArray[monsterIndex] : stateObj.opponent.monsterArray[monsterIndex]
+
+function createMoveDiv(stateObj, monsterIndex, moveIndex, isPlayer, outsideFight=false)  {
+    let monsterArray = false
+    if (isPlayer) {
+        monsterArray = (outsideFight) ? stateObj.player.fullMonsterArray : stateObj.player.fightMonsterArray 
+    } else {
+        monsterArray = stateObj.opponent.fightMonsterArray
+    }
+    monster = monsterArray[monsterIndex]
     let move =  monster.moves[moveIndex]
     const moveDiv = createDiv(["move-div", "column"])
     const moveTopRowDiv = createDiv(["move-top-row-div", "row", "space-evenly"])
     const moveName = createDiv(["move-name-div"], move.name)
     const moveEnergy = createDiv(["move-energy-cost-div"], (move.energyGained - move.energyReq))
     moveTopRowDiv.append(moveEnergy, moveName)
-    const moveText = createDiv(["move-text-div"], move.text(stateObj, monsterIndex, moveIndex, isPlayer))
+    const moveText = createDiv(["move-text-div"], move.text(monsterArray, monsterIndex, moveIndex))
     moveDiv.append(moveTopRowDiv, moveText)
     return moveDiv
 }
@@ -32,14 +39,12 @@ function createEndTurnButton(stateObj) {
 }
 
 function createMonsterDiv(stateObj, monsterIndex, isPlayer) {
-    let monster = (isPlayer) ? stateObj.player.monsterArray[monsterIndex] : stateObj.opponent.monsterArray[monsterIndex]
+    let monster = (isPlayer) ? stateObj.player.fightMonsterArray[monsterIndex] : stateObj.opponent.fightMonsterArray[monsterIndex]
 
     const monsterDiv = createDiv(["monster-div"])
     const monsterTopRowDiv = createDiv(["monster-top-row-div", "row", "space-evenly"])
     const monsterNameDiv = createDiv(["monster-name-div"], monster.name)
     const monsterEnergyDiv = createDiv(["monster-energy-div", "centered"], ("Energy: " + monster.currentEnergy))
-    monsterNameDiv.onclick = async function(){
-    }
     const monsterHPDiv = createDiv(["monster-hp"], ("HP: " + monster.currentHP + "/" + monster.maxHP))
     monsterTopRowDiv.append(monsterNameDiv, monsterHPDiv)
 
@@ -49,7 +54,7 @@ function createMonsterDiv(stateObj, monsterIndex, isPlayer) {
         if (isPlayer && monster.currentEnergy >= monster.moves[i].energyReq && monster.hasMoved === false) {
             moveDiv.classList.add("player-move")
             moveDiv.onclick = async function() {
-                await monster.moves[i].action(stateObj, monsterIndex, i)
+                await monster.moves[i].action(stateObj, monsterIndex, i, isPlayer)
             }
         }
         monsterMovesDiv.append(moveDiv)
@@ -89,24 +94,22 @@ function createScreenDiv(stateObj) {
     const monstersDiv = createDiv(["monsters-div", "row", "space-evenly"])
 
     const playerSideDiv = createDiv(["side-div", "row", "space-evenly"])
-    console.log(stateObj.player.monsterArray)
-    if (stateObj.player.monsterArray) {
-        for (let i=0; i < stateObj.player.monsterArray.length; i++) {
+    if (stateObj.player.fightMonsterArray) {
+        for (let i=0; i < stateObj.player.fightMonsterArray.length; i++) {
             let monsterDiv = createMonsterDiv(stateObj, i, true)
             playerSideDiv.append(monsterDiv)
         }
     }
-    
 
     const opponentSideDiv = createDiv(["side-div", "row", "space-evenly"])
-    for (let i=0; i < stateObj.opponent.monsterArray.length; i++) {
+    for (let i=0; i < stateObj.opponent.fightMonsterArray.length; i++) {
         let monsterDiv = createMonsterDiv(stateObj, i, false)
         opponentSideDiv.append(monsterDiv)
     }
     
     const mutationsDiv = createDiv(["mutations-array-div", "row", "centered"])
-    for (let i=0; i < stateObj.player.mutationArray.length; i++) {
-        mutateDiv = createMutationDiv(stateObj, stateObj.player.mutationArray[i], i)
+    for (let i=0; i < stateObj.player.handMutationArray.length; i++) {
+        mutateDiv = createMutationDiv(stateObj, stateObj.player.handMutationArray[i], i)
         mutationsDiv.append(mutateDiv)
     }
     endTurnButton = createEndTurnButton(stateObj)
@@ -114,10 +117,16 @@ function createScreenDiv(stateObj) {
 
     monstersDiv.append(playerSideDiv, opponentSideDiv)
     screenDiv.append(monstersDiv, mutationsDiv)
-    document.body.append(screenDiv)
+    const chooseMonsterDiv = createChooseMonster(stateObj)
+    document.body.append(screenDiv, chooseMonsterDiv)
+    if (stateObj.playerCaptureBalls > 0 && stateObj.opponent.fightMonsterArray[stateObj.targetedMonster].currentHP <= 5) {
+        let captureDiv = createUseCaptureBall(stateObj)
+        document.body.append(captureDiv) 
+    }
+
 }
 
-function createMutationDiv(stateObj, mutation, mutationArrayIndex) {
+function createMutationDiv(stateObj, mutation, mutationArrayIndex, ) {
     const mutationDiv = createDiv(["mutation-div", "column", "centered", "space-evenly"])
     const mutationNameDiv = createDiv(["mutation-name", "centered"], mutation.name)
     const mutationTextDiv = createDiv(["mutation-text", "centered"], mutation.text)
@@ -129,7 +138,86 @@ function createMutationDiv(stateObj, mutation, mutationArrayIndex) {
         }
         mutationDiv.classList.add("mutation-div-active")
     }
-    
-    
     return mutationDiv
+}
+
+function renderPickMutation(stateObj, mutationArray, index) {
+    const mutationDiv = createDiv(["mutation-div", "column", "centered", "space-evenly"])
+    const mutationNameDiv = createDiv(["mutation-name", "centered"], mutationArray[index].name)
+    const mutationTextDiv = createDiv(["mutation-text", "centered"], mutationArray[index].text)
+    mutationDiv.append(mutationNameDiv, mutationTextDiv)
+    mutationDiv.onclick = async function(){
+        console.log("clicked mutation div")
+        await addMutation(stateObj, mutationArray, index)
+    }
+    mutationDiv.classList.add("mutation-div-active")
+    document.body.append(mutationDiv)
+}
+
+function renderPickMonster(stateObj, index) {
+    let monster = stateObj.player.fullMonsterArray[index]
+    const monsterDiv = createDiv(["monster-div"])
+    const monsterTopRowDiv = createDiv(["monster-top-row-div", "row", "space-evenly"])
+    const monsterNameDiv = createDiv(["monster-name-div"], monster.name)
+    const monsterHPDiv = createDiv(["monster-hp"], ("HP: " + monster.currentHP + "/" + monster.maxHP))
+    monsterTopRowDiv.append(monsterNameDiv, monsterHPDiv)
+
+    const monsterMovesDiv = createDiv(["monster-moves-div"])
+    for (let i=0; i<monster.moves.length; i++) {
+        let moveDiv = createMoveDiv(stateObj, index, i, true, true)
+        moveDiv.classList.add("player-move")
+        monsterMovesDiv.append(moveDiv)
+    }
+
+    const avatarDiv = document.createElement('img');
+    avatarDiv.classList.add("avatar");
+    avatarDiv.src = monster.avatar;
+    avatarDiv.setAttribute("draggable", "false")
+    if (index < 2) {
+        avatarDiv.classList.add("player-targeted")
+    } else {
+        button1 = createDiv(["choose-monster-button"], "Make Monster 1")
+        button1.onclick = async function(){
+            console.log("fire makeMonster")
+            await makeMonster(stateObj, index, 0)
+        }
+        button2 = createDiv(["choose-monster-button"], "Make Monster 2")
+        button2.onclick = async function(){
+            await makeMonster(stateObj, index, 1)
+        }
+    }
+
+    monsterDiv.append(monsterTopRowDiv, avatarDiv, monsterMovesDiv)
+    if (index >= 2) {
+        monsterDiv.append(button1, button2)
+    }
+    return monsterDiv
+}
+
+function createReturnToFightDiv(stateObj) {
+    const returnDiv = createDiv(["change-status-button"], "Return to Fight")
+    returnDiv.onclick = async function(){
+        stateObj = await changeStatus(stateObj, Status.inFight)
+        await updateState(stateObj)
+    }
+    return returnDiv
+}
+
+function createUseCaptureBall(stateObj) {
+    const returnDiv = createDiv(["change-status-button"], "Catch Target Pokemon (" + stateObj.playerCaptureBalls + ")")
+    returnDiv.onclick = async function(){
+        stateObj = await catchTargetMonster(stateObj)
+        await updateState(stateObj)
+    }
+    return returnDiv
+}
+
+function createChooseMonster(stateObj) {
+    const returnDiv = createDiv(["change-status-button"], "Choose Monster Order")
+    returnDiv.onclick = async function(){
+        console.log("clicked choose Monster")
+        stateObj = await changeStatus(stateObj, Status.choosingMonsterOrder)
+        await updateState(stateObj)
+    }
+    return returnDiv
 }
