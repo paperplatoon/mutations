@@ -51,7 +51,13 @@ function createMonsterDiv(stateObj, monsterIndex, isPlayer) {
     const monsterMovesDiv = createDiv(["monster-moves-div"])
     for (let i=0; i<monster.moves.length; i++) {
         let moveDiv = createMoveDiv(stateObj, monsterIndex, i, isPlayer)
-        if (isPlayer && monster.currentEnergy >= monster.moves[i].energyReq && monster.hasMoved === false) {
+        if (stateObj.selectedMutationAction) {
+            moveDiv.classList.add("move-to-pick")
+            moveDiv.onclick = async function() {
+                console.log("firing mutation after move click" )
+                await stateObj.selectedMutationAction(stateObj, monsterIndex, i)
+            }
+        } else if (isPlayer && monster.currentEnergy >= monster.moves[i].energyReq && monster.hasMoved === false) {
             moveDiv.classList.add("player-move")
             moveDiv.onclick = async function() {
                 await monster.moves[i].action(stateObj, monsterIndex, i, isPlayer)
@@ -126,6 +132,7 @@ function createScreenDiv(stateObj) {
 
 }
 
+
 function createMutationDiv(stateObj, mutation, mutationArrayIndex, ) {
     const mutationDiv = createDiv(["mutation-div", "column", "centered", "space-evenly"])
     const mutationNameDiv = createDiv(["mutation-name", "centered"], mutation.name)
@@ -133,8 +140,17 @@ function createMutationDiv(stateObj, mutation, mutationArrayIndex, ) {
     mutationDiv.append(mutationNameDiv, mutationTextDiv)
     if (stateObj.playerUsedMutationThisTurn === false) {
         mutationDiv.onclick = async function(){
-            console.log("clicked mutation div")
-            await mutation.action(stateObj, mutationArrayIndex)
+            if (stateObj.player.handMutationArray[mutationArrayIndex].pickAttack) {
+                stateObj = immer.produce(stateObj, (newState) => {
+                    newState.selectedMutationAction = newState.player.handMutationArray[mutationArrayIndex].action
+                    newState.selectedMutationIndex = mutationArrayIndex
+                })
+                await updateState(stateObj)
+            } else {
+                await stateObj.player.handMutationArray[mutationArrayIndex].action(stateObj, mutationArrayIndex)
+            }
+            
+            
         }
         mutationDiv.classList.add("mutation-div-active")
     }

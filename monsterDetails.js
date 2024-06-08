@@ -113,13 +113,13 @@ unleash = {
 }
 
 squirrel = {
+    id: 0,
     name: "Squirrel",
     avatar: "img/squirrel.jpg",
     currentHP: 40,
     maxHP: 40,
     strength: 0,
     currentEnergy: 0,
-    
     moves: [
       {...swipe},
       {...claw},
@@ -130,15 +130,16 @@ squirrel = {
     nextAttackDamage: 0,
 }
 
-squirrel2 = {
+squirrel1 = {
+  id: 1,
   name: "Squirrel",
   avatar: "img/squirrel.jpg",
   currentHP: 40,
   maxHP: 40,
   strength: 0,
   currentEnergy: 0,
-  
   moves: [
+    {...swipe},
     {...claw},
     {...unleash}
   ],
@@ -147,75 +148,75 @@ squirrel2 = {
   nextAttackDamage: 0,
 }
 
+//
+//have two different actions - one to set the state action and the moveIndex, and one to trigger?
+//clicking on the move sets the moveIndexForMutation??
+//selectedMutationAction(stateObj, monsterIndex, i)
 commonAggressionMutation = {
   name: "Aggression+ (common)",
-  text: "A random attack deals 1-2 more damage",
-  action: async (stateObj, index) => {
-    let monster = stateObj.player.fightMonsterArray[stateObj.targetedPlayerMonster]
-    const filteredMoves = monster.moves.filter(move => move.type === "attack");
-    let moveName = filteredMoves[Math.floor(Math.random() * filteredMoves.length)].name
-    let moveIndex = monster.moves.findIndex(move => move.name === moveName)
-    let amountToIncrease = randomIntegerInRange(1, 2)
-    stateObj = await attackDamageIncrease(stateObj, stateObj.targetedPlayerMonster, moveIndex, amountToIncrease)
-    stateObj = await playerUsedMutation(stateObj, index)
+  text: "An attack deals 1-2 more damage",
+  pickAttack: true,
+  action: async (stateObj, monsterIndex, moveIndex) => {
+    if (stateObj.selectedMutationAction) {
+      let amountToIncrease = randomIntegerInRange(1, 2)
+      stateObj = await attackDamageIncrease(stateObj, monsterIndex, moveIndex, amountToIncrease)
+      stateObj = await playerUsedMutation(stateObj, stateObj.selectedMutationIndex)
+    }
+    
     await updateState(stateObj);
   }
 }
 
 uncommonAggressionMutation = {
   name: "Aggression+ (uncommon)",
-  text: "A random attack deals 2-3 more damage",
-  action: async (stateObj, index) => {
-    let monster = stateObj.player.fightMonsterArray[stateObj.targetedPlayerMonster]
-    const filteredMoves = monster.moves.filter(move => move.type === "attack");
-    let moveName = filteredMoves[Math.floor(Math.random() * filteredMoves.length)].name
-    let moveIndex = monster.moves.findIndex(move => move.name === moveName)
-    let amountToIncrease = randomIntegerInRange(2, 3)
-    stateObj = await attackDamageIncrease(stateObj, stateObj.targetedPlayerMonster, moveIndex, amountToIncrease)
-    stateObj = await playerUsedMutation(stateObj, index)
+  text: "An attack deals 2-3 more damage",
+  pickAttack: true,
+  action: async (stateObj, monsterIndex, moveIndex) => {
+      if (stateObj.selectedMutationAction) {
+        let amountToIncrease = randomIntegerInRange(2, 3)
+        stateObj = await attackDamageIncrease(stateObj, monsterIndex, moveIndex, amountToIncrease)
+        stateObj = await playerUsedMutation(stateObj, stateObj.selectedMutationIndex)
+      }
     await updateState(stateObj);
   }
 }
 
 rareAggressionMutation = {
   name: "Aggression+ (rare)",
-  text: "A random attack deals 4-5 more damage",
-  action: async (stateObj, index) => {
-    let monster = stateObj.player.fightMonsterArray[stateObj.targetedPlayerMonster]
-    const filteredMoves = monster.moves.filter(move => move.type === "attack");
-    let moveName = filteredMoves[Math.floor(Math.random() * filteredMoves.length)].name
-    let moveIndex = monster.moves.findIndex(move => move.name === moveName)
-    let amountToIncrease = randomIntegerInRange(4, 5)
-    stateObj = await attackDamageIncrease(stateObj, stateObj.targetedPlayerMonster, moveIndex, amountToIncrease)
-    stateObj = await playerUsedMutation(stateObj, index)
-    await updateState(stateObj);
-  }
+  text: "An attack deals 4-5 more damage",
+  pickAttack: true,
+  action: async (stateObj, monsterIndex, moveIndex) => {
+    if (stateObj.selectedMutationAction) {
+      let amountToIncrease = randomIntegerInRange(4, 5)
+      stateObj = await attackDamageIncrease(stateObj, monsterIndex, moveIndex, amountToIncrease)
+      stateObj = await playerUsedMutation(stateObj, stateObj.selectedMutationIndex)
+    }
+  await updateState(stateObj);
+}
 }
 
 uncommonSpeedMutation = {
   name: "Speed+ (uncommon)",
-  text: "A random attack hits 1 more time",
-  action: async (stateObj, index) => {
-    let monster = stateObj.player.fightMonsterArray[stateObj.targetedPlayerMonster]
-    const filteredMoves = monster.moves.filter(move => move.type === "attack");
-    let moveName = filteredMoves[Math.floor(Math.random() * filteredMoves.length)].name
-    let moveIndex = monster.moves.findIndex(move => move.name === moveName)
-    stateObj = await attackTimesIncrease(stateObj, stateObj.targetedPlayerMonster, moveIndex, 1)
-    stateObj = await playerUsedMutation(stateObj, index)
+  text: "An attack hits 1 more time",
+  pickAttack: true,
+  action: async (stateObj, monsterIndex, moveIndex) => {
+    if (stateObj.selectedMutationAction) {
+      stateObj = await attackTimesIncrease(stateObj, monsterIndex, moveIndex, 1)
+      stateObj = await playerUsedMutation(stateObj, stateObj.selectedMutationIndex)
+    }
     await updateState(stateObj);
   }
 }
 
 rareSpeedMutation = {
   name: "Speed+ (rare)",
-  text: "A random attack hits 2 more time",
-  action: async (stateObj, index) => {
-    let monster = stateObj.player.fightMonsterArray[stateObj.targetedPlayerMonster]
-    const filteredMoves = monster.moves.filter(move => move.type === "attack");
-    let moveName = filteredMoves[Math.floor(Math.random() * filteredMoves.length)].name
-    let moveIndex = monster.moves.findIndex(move => move.name === moveName)
-    stateObj = await attackTimesIncrease(stateObj, stateObj.targetedPlayerMonster, moveIndex, 2)
-    stateObj = await playerUsedMutation(stateObj, index)
+  text: "An attack hits 2 more times",
+  pickAttack: true,
+  action: async (stateObj, monsterIndex, moveIndex) => {
+    if (stateObj.selectedMutationAction) {
+      stateObj = await attackTimesIncrease(stateObj, monsterIndex, moveIndex, 2)
+      stateObj = await playerUsedMutation(stateObj, stateObj.selectedMutationIndex)
+    }
     await updateState(stateObj);
   }
 }
@@ -224,10 +225,11 @@ rareSpeedMutation = {
 commonBulkMutation = {
   name: "HP+ (common)",
   text: "Subject gains 3-5 more HP",
-  action: async (stateObj, index) => {
+  pickAttack: false,
+  action: async (stateObj, mutationIndex) => {
     let amountToIncrease = randomIntegerInRange(3, 5)
     stateObj = await hpIncrease(stateObj, stateObj.targetedPlayerMonster, amountToIncrease)
-    stateObj = await playerUsedMutation(stateObj, index)
+    stateObj = await playerUsedMutation(stateObj, mutationIndex)
     await updateState(stateObj);
   }
 }
@@ -235,10 +237,11 @@ commonBulkMutation = {
 uncommonBulkMutation = {
   name: "HP+ (uncommon)",
   text: "Subject gains 5-7 more HP",
-  action: async (stateObj, index) => {
+  pickAttack: false,
+  action: async (stateObj, mutationIndex) => {
     let amountToIncrease = randomIntegerInRange(5, 8)
     stateObj = await hpIncrease(stateObj, stateObj.targetedPlayerMonster, amountToIncrease)
-    stateObj = await playerUsedMutation(stateObj, index)
+    stateObj = await playerUsedMutation(stateObj, mutationIndex)
     await updateState(stateObj);
   }
 }
@@ -246,10 +249,11 @@ uncommonBulkMutation = {
 rareBulkMutation = {
   name: "HP+ (rare)",
   text: "Subject gains 8-11 more HP",
-  action: async (stateObj, index) => {
+  pickAttack: false,
+  action: async (stateObj, mutationIndex) => {
     let amountToIncrease = randomIntegerInRange(8, 11)
     stateObj = await hpIncrease(stateObj, stateObj.targetedPlayerMonster, amountToIncrease)
-    stateObj = await playerUsedMutation(stateObj, index)
+    stateObj = await playerUsedMutation(stateObj, mutationIndex)
     await updateState(stateObj);
   }
 }
@@ -257,9 +261,10 @@ rareBulkMutation = {
 uncommonEnergyMutation = {
   name: "Energy+ (uncommon)",
   text: "Subject starts combat with 1 extra energy",
-  action: async (stateObj, index) => {
+  pickAttack: false,
+  action: async (stateObj, mutationIndex) => {
     stateObj = await startCombatWithEnergyIncrease(stateObj, stateObj.targetedPlayerMonster, 1)
-    stateObj = await playerUsedMutation(stateObj, index)
+    stateObj = await playerUsedMutation(stateObj, mutationIndex)
     await updateState(stateObj);
   }
 }
@@ -267,9 +272,10 @@ uncommonEnergyMutation = {
 rareEnergyMutation = {
   name: "Energy+ (rare)",
   text: "Subject starts combat with 2 extra energy",
-  action: async (stateObj, index) => {
+  pickAttack: false,
+  action: async (stateObj, mutationIndex) => {
     stateObj = await startCombatWithEnergyIncrease(stateObj, stateObj.targetedPlayerMonster, 2)
-    stateObj = await playerUsedMutation(stateObj, index)
+    stateObj = await playerUsedMutation(stateObj, mutationIndex)
     await updateState(stateObj);
   }
 }

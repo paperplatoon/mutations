@@ -122,9 +122,10 @@ diveBomb = {
 }
 
 chipmunk = {
+    id: 2,
     name: "Rabid Chipmunk",
-    currentHP: 35,
-    maxHP: 35,
+    currentHP: 30,
+    maxHP: 30,
     strength: 0,
     currentEnergy: 0,
     avatar: "img/chipmunk.jpg",
@@ -138,6 +139,7 @@ chipmunk = {
 }
 
 vampireBat = {
+    id: 3,
     name: "Vampire Bat",
     currentHP: 30,
     maxHP: 30,

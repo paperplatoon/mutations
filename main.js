@@ -1,3 +1,5 @@
+//fix player monsters reset at end of fight
+
 const Status = {
     pickMutationReward: renderChooseMutationReward,
     inFight: createScreenDiv,
@@ -8,7 +10,7 @@ state = {
     player: {
         name: "Player",
         fightMonsterArray: [],
-        fullMonsterArray: [squirrel, squirrel, squirrel2, squirrel2],
+        fullMonsterArray: [squirrel, squirrel1],
 
         
         handMutationArray: [],
@@ -27,6 +29,8 @@ state = {
     playerUsedMutationThisTurn: false,
     playerCaptureBalls: 1,
     currentLevel: 0,
+    selectedMutationAction: false,
+    selectedMutationIndex: false,
 
     playerStartingMutations: 4,
     status: Status.inFight,
@@ -131,6 +135,8 @@ async function playerUsedMutation(stateObj, index)  {
         let removeIndex = newState.player.fullMutationArray.findIndex(mutation => mutation.name === newState.player.handMutationArray[index].name)
         newState.player.handMutationArray.splice(index, 1)
         newState.player.fullMutationArray.splice(removeIndex, 1)
+        newState.selectedMutationAction = false;
+        newState.selectedMutationIndex = false;
       })
     return stateObj
 }
@@ -335,6 +341,12 @@ async function checkForDeath(stateObj) {
         console.log("player won!")
         stateObj = immer.produce(stateObj, (newState) => {
             newState.currentLevel +=1
+            for (let i=0; i < stateObj.player.fightMonsterArray.length; i++) {
+                console.log("swapping out monster " + i)
+                let fullArrayIndex = newState.player.fullMonsterArray.findIndex(monster => monster.id === newState.player.fightMonsterArray[i].id)
+                console.log('located at index ' + fullArrayIndex)
+                newState.player.fullMonsterArray[fullArrayIndex] = newState.player.fightMonsterArray[i]
+            }
         })
         stateObj = await changeStatus(stateObj, Status.pickMutationReward)
     }

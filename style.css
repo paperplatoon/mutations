@@ -77,22 +77,38 @@
 
 .mutation-div {
     background-color: rgb(171, 171, 171);
+    font-family: monospace;
     height: 15vh;
     width: 18vw;
     margin: 3vmin;
-    font-size: 2.5vmin;
     padding: 0.5vmin;
+    transition: 1s all;
+}
+
+.mutation-name {
+    font-size: 2.5vmin;
+}
+
+.mutation-text {
+    font-size: 2.1vmin;
 }
 
 .mutation-div-active {
-    background-color: rgb(87, 248, 87);
+    background: linear-gradient(10deg, rgba(32,207,0,1) 0%, rgba(131,255,96,1) 16%, rgba(59,219,0,1) 65%, rgba(0,255,29,1) 100%);
 }
 
 @media (hover: hover) {
     .mutation-div-active:hover, .end-turn-button:hover {
-        background-color: rgb(1, 158, 1); /* change the direction of the change here */
-        color: rgb(74, 74, 74);
+        background: linear-gradient(10deg, rgb(19, 125, 0) 0%, rgb(54, 108, 39) 16%, rgb(44, 163, 1)65%, rgb(0, 123, 14) 100%);
+        color: rgb(211, 255, 220);
         cursor: pointer;
+        
+        
+    }
+
+    .mutation-div-active:hover {
+        border: 5px dotted rgb(0, 255, 0);
+        scale: 1.1;
     }
 }
 
@@ -127,9 +143,20 @@
     margin: 0.5vmin
 }
 
+.move-to-pick {
+    background: linear-gradient(90deg, rgba(158,0,0,1) 0%, rgba(255,96,96,1) 33%, rgb(223, 46, 46) 84%, rgba(255,0,0,1) 100%);
+    color: rgb(0, 28, 0);
+    cursor: pointer;
+}
+
 @media (hover: hover) {
     .change-status-button:hover, .choose-monster-button:hover {
         background-color: rgb(0, 108, 165);
         color: rgb(255, 255, 255);
+    }
+
+    .move-to-pick:hover {
+        scale: 1.1;
+        border: 2px solid grey
     }
 }
