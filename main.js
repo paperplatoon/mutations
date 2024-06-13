@@ -80,15 +80,17 @@ async function dealDamage(stateObj, monsterIndex, moveIndex, isPlayer, extraDama
         targetMonster.currentHP -= (damage * move.damageTimes)  
     })
     if (isPlayer) {
+        document.querySelectorAll(".player-side-div .avatar")[monsterIndex].classList.remove("player-pulse")
         document.querySelectorAll(".player-side-div .avatar")[monsterIndex].classList.add("player-windup")
         document.querySelectorAll(".opponent-side-div .avatar")[stateObj.targetedMonster].classList.add("opponent-impact")
-        await pause(350)
+        await pause(500)
         document.querySelectorAll(".player-side-div .avatar")[monsterIndex].classList.remove("player-windup")
         document.querySelectorAll(".opponent-side-div .avatar")[stateObj.targetedMonster].classList.remove("opponent-impact")
     } else {
         document.querySelectorAll(".opponent-side-div .avatar")[monsterIndex].classList.add("opponent-windup")
         document.querySelectorAll(".player-side-div .avatar")[targetOpponentIndex].classList.add("player-impact")
-        await pause(350)
+        document.querySelectorAll(".player-side-div .avatar")[targetOpponentIndex].classList.remove("player-pulse")
+        await pause(800)
         document.querySelectorAll(".opponent-side-div .avatar")[monsterIndex].classList.remove("opponent-windup")
         document.querySelectorAll(".player-side-div .avatar")[targetOpponentIndex].classList.remove("player-impact")
     }
@@ -208,7 +210,7 @@ async function resetPlayerTurn(stateObj) {
     return stateObj
 }
 
-async function pickEnemyMove(stateObj, monsterIndex) {
+function pickEnemyMove(stateObj, monsterIndex) {
     let monster = stateObj.opponent.fightMonsterArray[monsterIndex]
     let currentMoveIndex = 0
     for (let i=0; i < monster.moves.length; i++) {
@@ -221,7 +223,7 @@ async function pickEnemyMove(stateObj, monsterIndex) {
 
 async function enemyTurn(stateObj) {
     for (let i =0; i < stateObj.opponent.fightMonsterArray.length; i++) {
-        enemyMoveIndex = await pickEnemyMove(stateObj, i)
+        enemyMoveIndex = pickEnemyMove(stateObj, i)
         console.log('firing ' + stateObj.opponent.fightMonsterArray[i].moves[enemyMoveIndex].name + " for monster " + stateObj.opponent.fightMonsterArray[i].name)
         stateObj = await stateObj.opponent.fightMonsterArray[i].moves[enemyMoveIndex].action(stateObj, i, enemyMoveIndex, false)
     }

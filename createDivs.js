@@ -66,8 +66,13 @@ function createMonsterDiv(stateObj, monsterIndex, isPlayer) {
                 moveDiv.onclick = async function() {
                     await monster.moves[i].action(stateObj, monsterIndex, i, isPlayer)
                 }
-            } else if (!isPlayer && monster.currentEnergy >= monster.moves[i].energyReq) {
-                moveDiv.classList.add("enemy-move")
+            } else if (!isPlayer) {
+                let moveIndex = pickEnemyMove(stateObj, monsterIndex)
+                console.log("move index for enemy at index " + monsterIndex + " is " + moveIndex)
+                if (moveIndex === i) {
+                    console.log("adding enemy move to move " + i + "for monster at index " + monsterIndex)
+                    moveDiv.classList.add("enemy-move")
+                }
             }
         }
         monsterMovesDiv.append(moveDiv)
@@ -80,6 +85,7 @@ function createMonsterDiv(stateObj, monsterIndex, isPlayer) {
     if (isPlayer) {
         if (monsterIndex === stateObj.targetedPlayerMonster) {
             avatarDiv.classList.add("player-targeted")
+            avatarDiv.classList.add("player-pulse")
         } else {
             avatarDiv.onclick = async function() {
                 await changePlayerMonster(stateObj, monsterIndex)
