@@ -112,6 +112,61 @@ unleash = {
   }
 }
 
+fullHeal = {
+  name: "Full Heal",
+  text: (monsterArray, monsterIndex, moveIndex)  => { 
+    let textString = `Heal both your monsters back to full`;
+    return textString
+  },
+  energyReq: 5,
+  type: "attack",
+  energyGained: 0,
+  upgrades: 0,
+  action: async (stateObj, monsterIndex, moveIndex, isPlayer) => {
+    stateObj = await gainEnergy(stateObj, monsterIndex, moveIndex, isPlayer);
+    let healArray = (isPlayer) ? stateObj.player.fightMonsterArray : stateObj.opponent.fightMonsterArray
+    for (let i = 0; i < healArray.length; i++) {
+      stateObj = await healToFull(stateObj, i, isPlayer)
+    }
+    stateObj = await monsterMoved(stateObj, monsterIndex, isPlayer)
+    await updateState(stateObj);
+    if (!isPlayer) {
+      return stateObj
+    }
+  },
+}
+
+powerFeed = {
+  name: "Power Feed",
+  type: "attack",
+  text: (monsterArray, monsterIndex, moveIndex)  => { 
+    let monster = monsterArray[monsterIndex]
+    let move =  monster.moves[moveIndex]
+    let textString = `Deal ${calcMonsterDamage(monster, move)} damage `;
+    if (move.damageTimes > 1) {
+      textString += `${move.damageTimes} times`
+    }
+    textString += `. Heal ${calcMonsterDamage(monster, move)} HP`;
+    return textString
+  },
+  energyReq: 6,
+  energyGained: 0,
+  damage: 50,
+  damageTimes: 1,
+  upgrades: 0,
+  action: async (stateObj, monsterIndex, moveIndex, isPlayer) => {
+    let monster = (isPlayer) ? stateObj.player.fightMonsterArray[monsterIndex] : stateObj.opponent.fightMonsterArray[monsterIndex] 
+    let move =  monster.moves[moveIndex]
+    stateObj = await gainEnergy(stateObj, monsterIndex, moveIndex, isPlayer);
+    stateObj = await dealDamage(stateObj, monsterIndex, moveIndex, isPlayer)
+    stateObj = await restoreHP(stateObj, monsterIndex, calcMonsterDamage(monster, move), isPlayer)
+    await updateState(stateObj);
+    if (!isPlayer) {
+      return stateObj
+    }
+  }
+}
+
 squirrel = {
     id: 0,
     name: "Squirrel",
@@ -123,7 +178,7 @@ squirrel = {
     moves: [
       {...swipe},
       {...claw},
-      {...unleash}
+      {...powerFeed}
     ],
     hasMoved: false,
     startCombatWithEnergy: 0,
@@ -141,14 +196,51 @@ squirrel1 = {
   moves: [
     {...swipe},
     {...claw},
-    {...unleash}
+    {...plotRevenge}
   ],
   hasMoved: false,
   startCombatWithEnergy: 0,
   nextAttackDamage: 0,
 }
 
-//
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//MUTATIONS
 //have two different actions - one to set the state action and the moveIndex, and one to trigger?
 //clicking on the move sets the moveIndexForMutation??
 //selectedMutationAction(stateObj, monsterIndex, i)
@@ -156,6 +248,9 @@ commonAggressionMutation = {
   name: "Aggression+ (common)",
   text: "An attack deals 1-2 more damage",
   pickAttack: true,
+  mutationCheck: (moveObj) => {
+    return moveObj.damage > 0
+  },
   action: async (stateObj, monsterIndex, moveIndex) => {
     if (stateObj.selectedMutationAction) {
       let amountToIncrease = randomIntegerInRange(1, 2)
@@ -171,6 +266,9 @@ uncommonAggressionMutation = {
   name: "Aggression+ (uncommon)",
   text: "An attack deals 2-3 more damage",
   pickAttack: true,
+  mutationCheck: (moveObj) => {
+    return moveObj.damage > 0
+  },
   action: async (stateObj, monsterIndex, moveIndex) => {
       if (stateObj.selectedMutationAction) {
         let amountToIncrease = randomIntegerInRange(2, 3)
@@ -253,6 +351,17 @@ rareBulkMutation = {
   action: async (stateObj, mutationIndex) => {
     let amountToIncrease = randomIntegerInRange(8, 11)
     stateObj = await hpIncrease(stateObj, stateObj.targetedPlayerMonster, amountToIncrease)
+    stateObj = await playerUsedMutation(stateObj, mutationIndex)
+    await updateState(stateObj);
+  }
+}
+
+commonEnergyMutation = {
+  name: "Energy+ (common)",
+  text: "An attack costs one less energy",
+  pickAttack: false,
+  action: async (stateObj, mutationIndex) => {
+    stateObj = await startCombatWithEnergyIncrease(stateObj, stateObj.targetedPlayerMonster, 1)
     stateObj = await playerUsedMutation(stateObj, mutationIndex)
     await updateState(stateObj);
   }

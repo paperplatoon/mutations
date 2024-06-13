@@ -52,15 +52,22 @@ function createMonsterDiv(stateObj, monsterIndex, isPlayer) {
     for (let i=0; i<monster.moves.length; i++) {
         let moveDiv = createMoveDiv(stateObj, monsterIndex, i, isPlayer)
         if (stateObj.selectedMutationAction) {
-            moveDiv.classList.add("move-to-pick")
-            moveDiv.onclick = async function() {
-                console.log("firing mutation after move click" )
-                await stateObj.selectedMutationAction(stateObj, monsterIndex, i)
+            if (stateObj.doesMoveQualify(monster.moves[i]) && isPlayer) {
+                moveDiv.classList.add("move-to-pick")
+                moveDiv.onclick = async function() {
+                    console.log("firing mutation after move click" )
+                    await stateObj.selectedMutationAction(stateObj, monsterIndex, i)
+                }
             }
-        } else if (isPlayer && monster.currentEnergy >= monster.moves[i].energyReq && monster.hasMoved === false) {
-            moveDiv.classList.add("player-move")
-            moveDiv.onclick = async function() {
-                await monster.moves[i].action(stateObj, monsterIndex, i, isPlayer)
+            //change so if selectedMutationAction, is not showing player-move
+        } else {
+            if (isPlayer && monster.currentEnergy >= monster.moves[i].energyReq && monster.hasMoved === false) {
+                moveDiv.classList.add("player-move")
+                moveDiv.onclick = async function() {
+                    await monster.moves[i].action(stateObj, monsterIndex, i, isPlayer)
+                }
+            } else if (!isPlayer && monster.currentEnergy >= monster.moves[i].energyReq) {
+                moveDiv.classList.add("enemy-move")
             }
         }
         monsterMovesDiv.append(moveDiv)
@@ -99,7 +106,7 @@ function createScreenDiv(stateObj) {
     const screenDiv = createDiv(["screen-div", "column"])
     const monstersDiv = createDiv(["monsters-div", "row", "space-evenly"])
 
-    const playerSideDiv = createDiv(["side-div", "row", "space-evenly"])
+    const playerSideDiv = createDiv(["side-div", "player-side-div", "row", "space-evenly"])
     if (stateObj.player.fightMonsterArray) {
         for (let i=0; i < stateObj.player.fightMonsterArray.length; i++) {
             let monsterDiv = createMonsterDiv(stateObj, i, true)
@@ -107,7 +114,7 @@ function createScreenDiv(stateObj) {
         }
     }
 
-    const opponentSideDiv = createDiv(["side-div", "row", "space-evenly"])
+    const opponentSideDiv = createDiv(["side-div", "opponent-side-div", "row", "space-evenly"])
     for (let i=0; i < stateObj.opponent.fightMonsterArray.length; i++) {
         let monsterDiv = createMonsterDiv(stateObj, i, false)
         opponentSideDiv.append(monsterDiv)
@@ -144,6 +151,7 @@ function createMutationDiv(stateObj, mutation, mutationArrayIndex, ) {
                 stateObj = immer.produce(stateObj, (newState) => {
                     newState.selectedMutationAction = newState.player.handMutationArray[mutationArrayIndex].action
                     newState.selectedMutationIndex = mutationArrayIndex
+                    newState.doesMoveQualify = mutation.mutationCheck
                 })
                 await updateState(stateObj)
             } else {

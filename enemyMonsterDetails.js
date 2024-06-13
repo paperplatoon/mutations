@@ -21,7 +21,7 @@ bite = {
     damage: 10,
     damageTimes: 1,
     upgrades: 0,
-    energyCost: 1,
+    energyCost: 0,
     action: async (stateObj, monsterIndex, moveIndex, isPlayer) => {
       stateObj = await gainEnergy(stateObj, monsterIndex, moveIndex, isPlayer);
       stateObj = await dealDamage(stateObj, monsterIndex, moveIndex, isPlayer)

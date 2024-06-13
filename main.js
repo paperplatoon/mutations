@@ -31,6 +31,7 @@ state = {
     currentLevel: 0,
     selectedMutationAction: false,
     selectedMutationIndex: false,
+    doesMoveQualify: false,
 
     playerStartingMutations: 4,
     status: Status.inFight,
@@ -68,8 +69,9 @@ async function gainEnergy(stateObj, monsterIndex, moveIndex, isPlayer) {
 }
 
 async function dealDamage(stateObj, monsterIndex, moveIndex, isPlayer, extraDamage=0) {
-    stateObj = immer.produce(stateObj, (newState) => {   Math.floor(Math.random() * newState.player.fightMonsterArray.length)
-        let targetMonster = (isPlayer) ? newState.opponent.fightMonsterArray[newState.targetedMonster] : newState.player.fightMonsterArray[Math.floor(Math.random() * newState.player.fightMonsterArray.length)]
+    let targetOpponentIndex = Math.floor(Math.random() * stateObj.player.fightMonsterArray.length)
+    stateObj = immer.produce(stateObj, (newState) => {   
+        let targetMonster = (isPlayer) ? newState.opponent.fightMonsterArray[newState.targetedMonster] : newState.player.fightMonsterArray[targetOpponentIndex]
         let userMonster = (isPlayer) ? newState.player.fightMonsterArray[monsterIndex] : newState.opponent.fightMonsterArray[monsterIndex]
         let move = userMonster.moves[moveIndex]
         let damage = calcMonsterDamage(userMonster, move)
@@ -77,13 +79,35 @@ async function dealDamage(stateObj, monsterIndex, moveIndex, isPlayer, extraDama
         userMonster.nextAttackDamage = 0
         targetMonster.currentHP -= (damage * move.damageTimes)  
     })
-      return stateObj
+    if (isPlayer) {
+        document.querySelectorAll(".player-side-div .avatar")[monsterIndex].classList.add("player-windup")
+        document.querySelectorAll(".opponent-side-div .avatar")[stateObj.targetedMonster].classList.add("opponent-impact")
+        await pause(350)
+        document.querySelectorAll(".player-side-div .avatar")[monsterIndex].classList.remove("player-windup")
+        document.querySelectorAll(".opponent-side-div .avatar")[stateObj.targetedMonster].classList.remove("opponent-impact")
+    } else {
+        document.querySelectorAll(".opponent-side-div .avatar")[monsterIndex].classList.add("opponent-windup")
+        document.querySelectorAll(".player-side-div .avatar")[targetOpponentIndex].classList.add("player-impact")
+        await pause(350)
+        document.querySelectorAll(".opponent-side-div .avatar")[monsterIndex].classList.remove("opponent-windup")
+        document.querySelectorAll(".player-side-div .avatar")[targetOpponentIndex].classList.remove("player-impact")
+    }
+    
+    return stateObj
 }
 
 async function gainNextAttackDamage(stateObj, monsterIndex, damageToGain, isPlayer) {
     stateObj = immer.produce(stateObj, (newState) => {   
         let targetMonster = (isPlayer) ? newState.player.fightMonsterArray[monsterIndex] : newState.opponent.fightMonsterArray[monsterIndex]
         targetMonster.nextAttackDamage += damageToGain  
+      })
+    return stateObj
+}
+
+async function healToFull(stateObj, monsterIndex, isPlayer) {
+    stateObj = immer.produce(stateObj, (newState) => {   
+        let targetMonster = (isPlayer) ? newState.player.fightMonsterArray[monsterIndex] : newState.opponent.fightMonsterArray[monsterIndex]
+        targetMonster.currentHP = targetMonster.maxHP  
       })
     return stateObj
 }
@@ -137,6 +161,7 @@ async function playerUsedMutation(stateObj, index)  {
         newState.player.fullMutationArray.splice(removeIndex, 1)
         newState.selectedMutationAction = false;
         newState.selectedMutationIndex = false;
+        newState.doesMoveQualify = false;
       })
     return stateObj
 }
@@ -210,15 +235,11 @@ async function chooseEnemy(stateObj) {
     stateObj = immer.produce(stateObj, (newState) => {
         newState.opponent.fightMonsterArray = [{...enemyArray[index1]}, {...enemyArray[index2]}];
         newState.player.fightMonsterArray = [{...newState.player.fullMonsterArray[0]}, {...newState.player.fullMonsterArray[1]}];
-
+        console.log(newState.currentLevel + " is the curretlevel")
+        let increaseBy = ((newState.currentLevel) * 10 * 2);
         for (let i = 0; i < newState.opponent.fightMonsterArray.length; i++) {
-            console.log("current level " + newState.currentLevel); // Use newState instead of stateObj
-            let increaseBy = (newState.currentLevel * 10);
-            console.log("increase by " + increaseBy + " maxHP before " + newState.opponent.fightMonsterArray[i].maxHP);
-
             newState.opponent.fightMonsterArray[i].maxHP += increaseBy;
-            newState.opponent.fightMonsterArray[i].currentHP += (newState.currentLevel * 10);
-            console.log("increase by " + increaseBy + " maxHP after " + newState.opponent.fightMonsterArray[i].maxHP);
+            newState.opponent.fightMonsterArray[i].currentHP += increaseBy
         }
     });
 
