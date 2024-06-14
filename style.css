@@ -75,16 +75,37 @@
     justify-content: space-evenly;
 }
 
+.monster-div {
+    margin: 2vmin;
+}
+
+.single-energy-div {
+    border-radius: 50%;
+    background-color: white;
+    width: 2vmin;
+    height: 2vmin;
+    margin: 0.2vmin;
+}
+
+.gain-energy-text {
+    color: rgb(155, 235, 155);
+}
+
+.cost-energy-text {
+    color: rgb(235, 155, 155);
+}
+
 .row {
     display: flex;
     flex-direction: row;
+    vertical-align: center;
 }
 
 .move-text-div {
     margin-top: 0.8vh;
 }
 
-.monster-energy-div {
+.current-monster-energy-div {
     padding: 0.5vmin;
     background-color: purple;
     color: white;

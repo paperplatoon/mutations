@@ -22,9 +22,28 @@ function createMoveDiv(stateObj, monsterIndex, moveIndex, isPlayer, outsideFight
     let move =  monster.moves[moveIndex]
     const moveDiv = createDiv(["move-div", "column"])
     const moveTopRowDiv = createDiv(["move-top-row-div", "row", "space-evenly"])
-    const moveName = createDiv(["move-name-div"], move.name)
-    const moveEnergy = createDiv(["move-energy-cost-div"], (move.energyGained - move.energyReq))
-    moveTopRowDiv.append(moveEnergy, moveName)
+    // const moveName = createDiv(["move-name-div"], move.name)
+    const moveName = createDiv(["move-name-div"])
+    const moveEnergyContainer = createDiv(["move-energy-cost-div", "row"])
+
+    if (move.energyGained - move.energyReq > 0) {
+        const moveEnergySign = createDiv(["gain-energy-text", "centered"], "Gain: ")
+        moveEnergyContainer.append(moveEnergySign)
+        for (let i=0; i < move.energyGained - move.energyReq; i++) {
+            const energyDiv = createDiv(["single-energy-div", "centered"])
+            moveEnergyContainer.append(energyDiv)
+        }
+    } else {
+        const moveEnergySign = createDiv(["cost-energy-text", "centered"], "Costs: ")
+        moveEnergyContainer.append(moveEnergySign)
+        for (let i=0; i < move.energyReq - move.energyGained; i++) {
+            const energyDiv = createDiv(["single-energy-div", "centered"])
+            moveEnergyContainer.append(energyDiv)
+        }
+    }
+    
+
+    moveTopRowDiv.append(moveEnergyContainer, moveName)
     const moveText = createDiv(["move-text-div"], move.text(monsterArray, monsterIndex, moveIndex))
     moveDiv.append(moveTopRowDiv, moveText)
     return moveDiv
@@ -44,7 +63,13 @@ function createMonsterDiv(stateObj, monsterIndex, isPlayer) {
     const monsterDiv = createDiv(["monster-div"])
     const monsterTopRowDiv = createDiv(["monster-top-row-div", "row", "space-evenly"])
     const monsterNameDiv = createDiv(["monster-name-div"], monster.name)
-    const monsterEnergyDiv = createDiv(["monster-energy-div", "centered"], ("Energy: " + monster.currentEnergy))
+    const currentEnergyContainer = createDiv(["current-monster-energy-div", "row", "centered"])
+    const currentEnergyText = createDiv(["current-monster-energy-text", "centered"], "Energy:")
+    currentEnergyContainer.append(currentEnergyText)
+    for (let i=0; i < monster.currentEnergy; i++) {
+        const energyDiv = createDiv(["single-energy-div", "centered"])
+        currentEnergyContainer.append(energyDiv)
+    }
     const monsterHPDiv = createDiv(["monster-hp"], ("HP: " + monster.currentHP + "/" + monster.maxHP))
     monsterTopRowDiv.append(monsterNameDiv, monsterHPDiv)
 
@@ -68,9 +93,7 @@ function createMonsterDiv(stateObj, monsterIndex, isPlayer) {
                 }
             } else if (!isPlayer) {
                 let moveIndex = pickEnemyMove(stateObj, monsterIndex)
-                console.log("move index for enemy at index " + monsterIndex + " is " + moveIndex)
                 if (moveIndex === i) {
-                    console.log("adding enemy move to move " + i + "for monster at index " + monsterIndex)
                     moveDiv.classList.add("enemy-move")
                 }
             }
@@ -78,9 +101,14 @@ function createMonsterDiv(stateObj, monsterIndex, isPlayer) {
         monsterMovesDiv.append(moveDiv)
     }
 
+    const avatarContainerDiv = createDiv(["avatar-container", "centered"])
     const avatarDiv = document.createElement('img');
     avatarDiv.classList.add("avatar");
-    avatarDiv.src = monster.avatar;
+    let avatar = monster.avatar[0]
+    if (monster.mutations > 0) {
+        avatar = (monster.mutations < 2) ? monster.avatar[1] : monster.avatar[2]
+    }
+    avatarDiv.src = avatar;
     avatarDiv.setAttribute("draggable", "false")
     if (isPlayer) {
         if (monsterIndex === stateObj.targetedPlayerMonster) {
@@ -100,8 +128,8 @@ function createMonsterDiv(stateObj, monsterIndex, isPlayer) {
             }
         }
     }
-
-    monsterDiv.append(monsterTopRowDiv, monsterEnergyDiv, avatarDiv, monsterMovesDiv)
+    avatarContainerDiv.append(avatarDiv)
+    monsterDiv.append(monsterTopRowDiv, currentEnergyContainer, avatarContainerDiv, monsterMovesDiv)
     return monsterDiv
 }
 
@@ -201,7 +229,11 @@ function renderPickMonster(stateObj, index) {
 
     const avatarDiv = document.createElement('img');
     avatarDiv.classList.add("avatar");
-    avatarDiv.src = monster.avatar;
+    let avatar = monster.avatar[0]
+    if (monster.mutations > 0) {
+        avatar = (monster.mutations < 2) ? monster.avatar[1] : monster.avatar[2]
+    }
+    avatarDiv.src = avatar;
     avatarDiv.setAttribute("draggable", "false")
     if (index < 2) {
         avatarDiv.classList.add("player-targeted")

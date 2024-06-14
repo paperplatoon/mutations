@@ -10,7 +10,7 @@ state = {
     player: {
         name: "Player",
         fightMonsterArray: [],
-        fullMonsterArray: [squirrel, squirrel1],
+        fullMonsterArray: [squirrel, bunny],
 
         
         handMutationArray: [],
@@ -22,8 +22,6 @@ state = {
         name: "Opponent",
         fightMonsterArray: [chipmunk, vampireBat],
     },
-    playerMonster: false,
-    enemyMonster: false,
     targetedMonster: 0,
     targetedPlayerMonster: 0,
     playerUsedMutationThisTurn: false,
@@ -58,15 +56,7 @@ async function pause(timeValue) {
 
 
 
-async function gainEnergy(stateObj, monsterIndex, moveIndex, isPlayer) {
-    stateObj = immer.produce(stateObj, (newState) => {
-        let monster = (isPlayer) ? newState.player.fightMonsterArray[monsterIndex] : newState.opponent.fightMonsterArray[monsterIndex]
-        let move = monster.moves[moveIndex]
-        monster.currentEnergy -= move.energyReq 
-        monster.currentEnergy += move.energyGained
-      })
-      return stateObj
-}
+
 
 async function dealDamage(stateObj, monsterIndex, moveIndex, isPlayer, extraDamage=0) {
     let targetOpponentIndex = Math.floor(Math.random() * stateObj.player.fightMonsterArray.length)
@@ -98,64 +88,18 @@ async function dealDamage(stateObj, monsterIndex, moveIndex, isPlayer, extraDama
     return stateObj
 }
 
-async function gainNextAttackDamage(stateObj, monsterIndex, damageToGain, isPlayer) {
-    stateObj = immer.produce(stateObj, (newState) => {   
-        let targetMonster = (isPlayer) ? newState.player.fightMonsterArray[monsterIndex] : newState.opponent.fightMonsterArray[monsterIndex]
-        targetMonster.nextAttackDamage += damageToGain  
-      })
-    return stateObj
-}
 
-async function healToFull(stateObj, monsterIndex, isPlayer) {
-    stateObj = immer.produce(stateObj, (newState) => {   
-        let targetMonster = (isPlayer) ? newState.player.fightMonsterArray[monsterIndex] : newState.opponent.fightMonsterArray[monsterIndex]
-        targetMonster.currentHP = targetMonster.maxHP  
-      })
-    return stateObj
-}
 
 function calcMonsterDamage(monster, move) {
     return (move.damage + monster.nextAttackDamage + monster.strength)
 }
 
-async function attackDamageIncrease(stateObj, playerMonsterIndex, moveIndex, amountToIncrease)  {
-    stateObj = immer.produce(stateObj, (newState) => {   
-        newState.player.fightMonsterArray[playerMonsterIndex].moves[moveIndex].damage += amountToIncrease  
-      })
-    return stateObj
-}
 
-async function hpIncrease(stateObj, playerMonsterIndex, amountToIncrease)  {
-    stateObj = immer.produce(stateObj, (newState) => {   
-        newState.player.fightMonsterArray[playerMonsterIndex].currentHP += amountToIncrease
-        newState.player.fightMonsterArray[playerMonsterIndex].maxHP += amountToIncrease  
-      })
-    return stateObj
-}
 
-async function startCombatWithEnergyIncrease(stateObj, playerMonsterIndex, amountToIncrease)  {
-    stateObj = immer.produce(stateObj, (newState) => {   
-        newState.player.fightMonsterArray[playerMonsterIndex].startCombatWithEnergyIncrease += amountToIncrease 
-      })
-    return stateObj
-}
 
-async function attackTimesIncrease(stateObj, playerMonsterIndex, moveIndex, amountToIncrease)  {
-    stateObj = immer.produce(stateObj, (newState) => {   
-        newState.player.fightMonsterArray[playerMonsterIndex].moves[moveIndex].damageTimes += amountToIncrease  
-      })
-    return stateObj
-}
 
-async function monsterMoved(stateObj, monsterIndex, isPlayer)  {
-    stateObj = immer.produce(stateObj, (newState) => {   
-        let targetMonster = (isPlayer) ? newState.player.fightMonsterArray[monsterIndex] : newState.opponent.fightMonsterArray[monsterIndex]
-        targetMonster.hasMoved = true  
-      })
-    return stateObj
-}
 
-async function playerUsedMutation(stateObj, index)  {
+async function playerUsedMutation(stateObj, index, monsterIndex)  {
     stateObj = immer.produce(stateObj, (newState) => {   
         newState.playerUsedMutationThisTurn = true  
         let removeIndex = newState.player.fullMutationArray.findIndex(mutation => mutation.name === newState.player.handMutationArray[index].name)
@@ -164,6 +108,7 @@ async function playerUsedMutation(stateObj, index)  {
         newState.selectedMutationAction = false;
         newState.selectedMutationIndex = false;
         newState.doesMoveQualify = false;
+        newState.player.fightMonsterArray[monsterIndex].mutations += 1
       })
     return stateObj
 }
@@ -172,19 +117,7 @@ function randomIntegerInRange(min, max) {
     return Math.floor(Math.random() * (max-min + 1) + min)
 }
 
-async function restoreHP(stateObj, monsterIndex, healNumber, isPlayer) {
-    stateObj = immer.produce(stateObj, (newState) => {   
-        let monster = (isPlayer) ? newState.player.fightMonsterArray[monsterIndex] : newState.opponent.fightMonsterArray[monsterIndex]
-        let missingHP = monster.maxHP - monster.currentHP
-        if (missingHP >= healNumber) {
-            monster.currentHP += healNumber
-        } else {
-            monster.currentHP = monster.maxHP
-        }
-          
-    })
-    return stateObj
-}
+
 
 async function drawMutationCard(stateObj) {
     if (stateObj.player.fullMutationArray.length > 0) {
@@ -237,7 +170,6 @@ async function chooseEnemy(stateObj) {
     stateObj = immer.produce(stateObj, (newState) => {
         newState.opponent.fightMonsterArray = [{...enemyArray[index1]}, {...enemyArray[index2]}];
         newState.player.fightMonsterArray = [{...newState.player.fullMonsterArray[0]}, {...newState.player.fullMonsterArray[1]}];
-        console.log(newState.currentLevel + " is the curretlevel")
         let increaseBy = ((newState.currentLevel) * 10 * 2);
         for (let i = 0; i < newState.opponent.fightMonsterArray.length; i++) {
             newState.opponent.fightMonsterArray[i].maxHP += increaseBy;
@@ -246,20 +178,6 @@ async function chooseEnemy(stateObj) {
     });
 
     return stateObj;
-}
-
-async function changePlayerMonster(stateObj, monIndex) {
-    stateObj = immer.produce(stateObj, (newState) => {
-        newState.targetedPlayerMonster = monIndex;
-    })
-    await updateState(stateObj)
-}
-
-async function changeEnemyMonster(stateObj, monIndex) {
-    stateObj = immer.produce(stateObj, (newState) => {
-        newState.targetedMonster = monIndex;
-    })
-    await updateState(stateObj)
 }
 
 function getUniqueRandomIndexes(array, count) {
