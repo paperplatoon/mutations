@@ -3,14 +3,15 @@
 const Status = {
     pickMutationReward: renderChooseMutationReward,
     inFight: createScreenDiv,
-    choosingMonsterOrder: renderChooseMonsterOrder
+    choosingMonsterOrder: renderChooseMonsterOrder,
+    choosingMoveReward: renderChooseMoveReward,
   };
 
 state = {
     player: {
         name: "Player",
         fightMonsterArray: [],
-        fullMonsterArray: [squirrel, bunny],
+        fullMonsterArray: [otter, snake],
 
         
         handMutationArray: [],
@@ -157,7 +158,6 @@ function pickEnemyMove(stateObj, monsterIndex) {
 async function enemyTurn(stateObj) {
     for (let i =0; i < stateObj.opponent.fightMonsterArray.length; i++) {
         enemyMoveIndex = pickEnemyMove(stateObj, i)
-        console.log('firing ' + stateObj.opponent.fightMonsterArray[i].moves[enemyMoveIndex].name + " for monster " + stateObj.opponent.fightMonsterArray[i].name)
         stateObj = await stateObj.opponent.fightMonsterArray[i].moves[enemyMoveIndex].action(stateObj, i, enemyMoveIndex, false)
     }
     stateObj = await resetPlayerTurn(stateObj)
@@ -278,16 +278,11 @@ async function checkForDeath(stateObj) {
     if (stateObj.player.fightMonsterArray.length < 1) {
         console.log("player lost!")
         stateObj = await startEncounter(stateObj)
-    } else if (stateObj.opponent.fightMonsterArray.length < 1) {
+    } else if (stateObj.opponent.fightMonsterArray.length < 1 && stateObj.status === Status.inFight) {
         console.log("player won!")
         stateObj = immer.produce(stateObj, (newState) => {
             newState.currentLevel +=1
-            for (let i=0; i < stateObj.player.fightMonsterArray.length; i++) {
-                console.log("swapping out monster " + i)
-                let fullArrayIndex = newState.player.fullMonsterArray.findIndex(monster => monster.id === newState.player.fightMonsterArray[i].id)
-                console.log('located at index ' + fullArrayIndex)
-                newState.player.fullMonsterArray[fullArrayIndex] = newState.player.fightMonsterArray[i]
-            }
+            
         })
         stateObj = await changeStatus(stateObj, Status.pickMutationReward)
     }
@@ -319,9 +314,7 @@ function renderPickMutationList(stateObj, mutationArray) {
 async function makeMonster(stateObj, monsterIndex, indexToChange) {
     stateObj = immer.produce(stateObj, (newState) => {
         newMonster = newState.player.fullMonsterArray[monsterIndex]
-        console.log("new monster is " + JSON.stringify(newMonster))
         oldMonster = newState.player.fullMonsterArray[indexToChange]
-        console.log("old monster is " + JSON.stringify(oldMonster))
         newState.player.fullMonsterArray[indexToChange] = newMonster
         newState.player.fullMonsterArray[monsterIndex] = oldMonster
     })
@@ -333,8 +326,31 @@ async function addMutation(stateObj, mutationArray, index) {
     stateObj = immer.produce(stateObj, (newState) => {
         newState.player.fullMutationArray.push(mutationArray[index])
     })
-    stateObj = await changeStatus(stateObj, Status.inFight)
+    stateObj = await changeStatus(stateObj, Status.choosingMoveReward)
     await updateState(stateObj)
+}
+
+
+
+async function giveMonsterMove(stateObj, index, monster, potentialMove){
+    console.log('firing give move')
+    let findMoveIndex = 0
+    for (let i=0; i < monster.moves.length; i++) {
+        if (potentialMove.energyReq > monster.moves[i].energyReq) {
+            findMoveIndex = i+1
+        }
+    }
+    stateObj = immer.produce(stateObj, (newState) => {
+        newState.player.fightMonsterArray[index].moves.splice(findMoveIndex, 0, potentialMove)
+
+        for (let i=0; i < stateObj.player.fightMonsterArray.length; i++) {
+            let fullArrayIndex = newState.player.fullMonsterArray.findIndex(monster => monster.id === newState.player.fightMonsterArray[i].id)
+            newState.player.fullMonsterArray[fullArrayIndex] = newState.player.fightMonsterArray[i]
+        }
+    })
+    
+    await updateState(stateObj)
+    stateObj = await changeStatus(stateObj, Status.inFight)
     await startEncounter(stateObj)
 }
 
@@ -350,6 +366,23 @@ function renderPickMonsterOrder(stateObj) {
     let monstersDiv = createDiv(["pick-monsters-div", "row"])
     stateObj.player.fullMonsterArray.forEach(function (monsterObj, index) {
       monstersDiv.append(renderPickMonster(stateObj, index))
+    })
+
+    document.body.append(monstersDiv)
+}
+
+function renderChooseMoveReward(stateObj) {
+    document.body.innerHTML = ""
+    renderPickNewMonsterMove(stateObj);
+    returnButton = createReturnToFightDiv(stateObj)
+    document.body.append(returnButton)
+    // skipToTownButton(stateObj, "I choose not to add any of these cards to my deck (+5 gold)", ".remove-div", cardSkip=true);
+};
+
+function renderPickNewMonsterMove(stateObj) {
+    let monstersDiv = createDiv(["pick-monsters-div", "row"])
+    stateObj.player.fullMonsterArray.forEach(function (monsterObj, index) {
+      monstersDiv.append(renderPickNewMove(stateObj, index))
     })
 
     document.body.append(monstersDiv)

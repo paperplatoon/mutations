@@ -120,10 +120,10 @@ commonEnergyGainMutation = {
     name: "HP+ (common)",
     text: "Subject gains 3-5 more HP",
     pickAttack: false,
-    action: async (stateObj, mutationIndex) => {
+    action: async (stateObj, mutationIndex, monsterIndex) => {
       let amountToIncrease = randomIntegerInRange(3, 5)
       stateObj = await hpIncrease(stateObj, stateObj.targetedPlayerMonster, amountToIncrease)
-      stateObj = await playerUsedMutation(stateObj, mutationIndex)
+      stateObj = await playerUsedMutation(stateObj, mutationIndex, monsterIndex)
       await updateState(stateObj);
     }
   }
@@ -132,10 +132,10 @@ commonEnergyGainMutation = {
     name: "HP+ (uncommon)",
     text: "Subject gains 5-7 more HP",
     pickAttack: false,
-    action: async (stateObj, mutationIndex) => {
+    action: async (stateObj, mutationIndex, monsterIndex) => {
       let amountToIncrease = randomIntegerInRange(5, 8)
       stateObj = await hpIncrease(stateObj, stateObj.targetedPlayerMonster, amountToIncrease)
-      stateObj = await playerUsedMutation(stateObj, mutationIndex)
+      stateObj = await playerUsedMutation(stateObj, mutationIndex, monsterIndex)
       await updateState(stateObj);
     }
   }
@@ -144,10 +144,10 @@ commonEnergyGainMutation = {
     name: "HP+ (rare)",
     text: "Subject gains 8-11 more HP",
     pickAttack: false,
-    action: async (stateObj, mutationIndex) => {
+    action: async (stateObj, mutationIndex, monsterIndex) => {
       let amountToIncrease = randomIntegerInRange(8, 11)
       stateObj = await hpIncrease(stateObj, stateObj.targetedPlayerMonster, amountToIncrease)
-      stateObj = await playerUsedMutation(stateObj, mutationIndex)
+      stateObj = await playerUsedMutation(stateObj, mutationIndex, monsterIndex)
       await updateState(stateObj);
     }
   }
@@ -172,9 +172,9 @@ commonEnergyGainMutation = {
     name: "Energy+ (uncommon)",
     text: "Subject starts combat with 1 extra energy",
     pickAttack: false,
-    action: async (stateObj, mutationIndex) => {
+    action: async (stateObj, mutationIndex, monsterIndex) => {
       stateObj = await startCombatWithEnergyIncrease(stateObj, stateObj.targetedPlayerMonster, 1)
-      stateObj = await playerUsedMutation(stateObj, mutationIndex)
+      stateObj = await playerUsedMutation(stateObj, mutationIndex, monsterIndex)
       await updateState(stateObj);
     }
   }
@@ -183,9 +183,9 @@ commonEnergyGainMutation = {
     name: "Energy+ (rare)",
     text: "Subject starts combat with 2 extra energy",
     pickAttack: false,
-    action: async (stateObj, mutationIndex) => {
+    action: async (stateObj, mutationIndex, monsterIndex) => {
       stateObj = await startCombatWithEnergyIncrease(stateObj, stateObj.targetedPlayerMonster, 2)
-      stateObj = await playerUsedMutation(stateObj, mutationIndex)
+      stateObj = await playerUsedMutation(stateObj, mutationIndex, monsterIndex)
       await updateState(stateObj);
     }
   }
@@ -201,5 +201,5 @@ commonEnergyGainMutation = {
     uncommonAggressionMutation, uncommonAggressionMutation, commonEnergyGainMutation, commonEnergyMutation, 
     commonEnergyMutation, commonEnergyMutation, uncommonSpeedMutation, uncommonBulkMutation]
   
-  // let startingMutationArray = [ commonEnergyGainMutation,commonEnergyGainMutation,rareAggressionMutation2,rareAggressionMutation2,
-  // ]a
+//   let startingMutationArray = [ rareBulkMutation,rareBulkMutation,rareAggressionMutation2,rareAggressionMutation2,
+//   ]

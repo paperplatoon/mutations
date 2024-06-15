@@ -7,9 +7,7 @@
 bite = {
     name: "Bite",
     type: "attack",
-    text: (monsterArray, monsterIndex, moveIndex)  => { 
-      let monster = monsterArray[monsterIndex]
-      let move =  monster.moves[moveIndex]
+    text: (monster, move)  => { 
       let textString = `Deal ${calcMonsterDamage(monster, move)} damage`;
       if (move.damageTimes > 1) {
         textString += ` ${move.damageTimes} times`
@@ -33,14 +31,36 @@ bite = {
     }
 }
 
+coilup = {
+  name: "Coil Up",
+  type: "attack",
+  text: (monster, move)  => { 
+    let textString = `Your next attack deals 1 more damage`;
+    return textString
+  },
+  energyReq: 0,
+  energyGained: 2,
+  damage: 0,
+  damageTimes: 0,
+  upgrades: 0,
+  energyCost: 0,
+  action: async (stateObj, monsterIndex, moveIndex, isPlayer) => {
+    stateObj = await gainEnergy(stateObj, monsterIndex, moveIndex, isPlayer);
+    stateObj = await gainNextAttackDamage(stateObj, monsterIndex, 1, isPlayer)
+    stateObj = await monsterMoved(stateObj, monsterIndex, isPlayer)
+    await updateState(stateObj);
+    if (!isPlayer) {
+      return stateObj
+    }
+  }
+}
+
 
 
 bloodsucker = {
     name: "Bloodsucker",
     type: "attack",
-    text: (monsterArray, monsterIndex, moveIndex)  => { 
-      let monster = monsterArray[monsterIndex]
-      let move =  monster.moves[moveIndex]
+    text: (monster, move)  => { 
       let textString = `Deal ${calcMonsterDamage(monster, move)} damage `;
       if (move.damageTimes > 1) {
         textString += `${move.damageTimes} times`
@@ -68,9 +88,7 @@ bloodsucker = {
 
 swipe = {
   name: "Swipe",
-  text: (monsterArray, monsterIndex, moveIndex)  => { 
-    let monster = monsterArray[monsterIndex]
-    let move =  monster.moves[moveIndex]
+  text: (monster, move)  => { 
     let textString = `Deal ${calcMonsterDamage(monster, move)} damage`;
     if (move.damageTimes > 1) {
       textString += ` ${move.damageTimes} times`
@@ -97,9 +115,7 @@ swipe = {
 claw = {
 name: "Claw",
 type: "attack",
-text: (monsterArray, monsterIndex, moveIndex) => { 
-  let monster = monsterArray[monsterIndex]
-  let move =  monster.moves[moveIndex]
+text: (monster, move)  => { 
   let textString = `Deal ${calcMonsterDamage(monster, move)} damage`;
   if (move.damageTimes > 1) {
     textString += ` ${move.damageTimes} times`
@@ -125,9 +141,7 @@ action: async (stateObj, monsterIndex, moveIndex, isPlayer) => {
 heal = {
   name: "Heal",
   type: "skill",
-  text: (monsterArray, monsterIndex, moveIndex) => { 
-    let monster = monsterArray[monsterIndex]
-    let move =  monster.moves[moveIndex]
+  text: (monster, move)  => { 
     let textString = `Heal target for ${move.heal} HP`;
     if (move.healTimes > 1) {
       textString += ` ${move.healTimes} times`
@@ -155,9 +169,7 @@ heal = {
 energize = {
   name: "Energize",
   type: "skill",
-  text: (monsterArray, monsterIndex, moveIndex) => { 
-    let monster = monsterArray[monsterIndex]
-    let move =  monster.moves[moveIndex]
+  text: (monster, move)  => { 
     let textString = `This monster and its ally gain ${move.energyGained - move.energyReq} energy`;
     return textString
   },
@@ -177,4 +189,5 @@ energize = {
   }
 }
 
+let cantripMoves = [bite, coilup, bloodsucker, swipe, claw, heal, energize]
 
