@@ -97,7 +97,9 @@ function createMonsterDiv(stateObj, monsterIndex, isPlayer) {
     const avatarContainerDiv = createDiv(["avatar-container", "centered"])
     const avatarDiv = document.createElement('img');
     avatarDiv.classList.add("avatar");
-    let mutationNumber = (monster.mutations > monster.avatar.length) ? monster.avatar.length : monster.mutations
+    let mutationNumber = (monster.mutations > monster.avatar.length-1) ? monster.avatar.length-1 : monster.mutations
+    console.log(mutationNumber + " mutations number for " + monster.name)
+    console.log("monster avatar length is " + monster.avatar.length + " for monster " + monster.name)
     let avatar = monster.avatar[mutationNumber]
     avatarDiv.src = avatar;
     avatarDiv.setAttribute("draggable", "false")
@@ -128,7 +130,7 @@ function createScreenDiv(stateObj) {
     console.log("creating screen div")
     document.body.innerHTML = ''
 
-    const screenDiv = createDiv(["screen-div", "column"])
+    const screenDiv = createDiv(["screen-div", "column", "space-evenly"])
     const monstersDiv = createDiv(["monsters-div", "row", "space-evenly"])
 
     const playerSideDiv = createDiv(["side-div", "player-side-div", "row", "space-evenly"])
@@ -218,12 +220,16 @@ function renderPickMonster(stateObj, index) {
         monsterMovesDiv.append(moveDiv)
     }
 
+
+     const avatarContainerDiv = createDiv(["avatar-container", "centered"])
     const avatarDiv = document.createElement('img');
     avatarDiv.classList.add("avatar");
-    let mutationNumber = (monster.mutations > monster.avatars.length) ? monster.avatars.length : monster.mutations
+    let mutationNumber = (monster.mutations > monster.avatar.length) ? monster.avatar.length-1 : monster.mutations
+    console.log(mutationNumber + " mutations number for " + monster.name)
     let avatar = monster.avatar[mutationNumber]
     avatarDiv.src = avatar;
     avatarDiv.setAttribute("draggable", "false")
+    avatarContainerDiv.append(avatarDiv)
     button1 = createDiv(["choose-monster-button"], "Make Monster 1")
     button1.onclick = async function(){
         await makeMonster(stateObj, index, 0)
@@ -233,7 +239,7 @@ function renderPickMonster(stateObj, index) {
         await makeMonster(stateObj, index, 1)
     }
 
-    monsterDiv.append(monsterTopRowDiv, avatarDiv, monsterMovesDiv)
+    monsterDiv.append(monsterTopRowDiv, avatarContainerDiv, monsterMovesDiv)
     if (index >= 2) {
         monsterDiv.append(button1, button2)
     }

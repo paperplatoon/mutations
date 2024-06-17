@@ -10,7 +10,7 @@ demolish = {
     },
     energyReq: 2,
     energyGained: 0,
-    damage: 20,
+    damage: 15,
     damageTimes: 1,
     upgrades: 0,
     action: async (stateObj, monsterIndex, moveIndex, isPlayer) => {
@@ -35,7 +35,7 @@ diveBomb = {
       textString += `. Heal ${calcMonsterDamage(monster, move)} HP`;
       return textString
     },
-    energyReq: 2,
+    energyReq: 3,
     energyGained: 0,
     damage: 15,
     damageTimes: 1,
@@ -60,7 +60,7 @@ plotRevenge = {
       let textString = `Your next attack deals ${missingHP} damage (increases when HP is lower)`;
       return textString
     },
-    energyReq: 4,
+    energyReq: 3,
     energyGained: 0,
     damage: 0,
     upgrades: 0,
@@ -88,9 +88,9 @@ plotRevenge = {
       }
       return textString
     },
-    energyReq: 3,
+    energyReq: 4,
     energyGained: 0,
-    damage: 8,
+    damage: 10,
     damageTimes: 1,
     upgrades: 0,
     action: async (stateObj, monsterIndex, moveIndex, isPlayer) => {
@@ -118,8 +118,8 @@ plotRevenge = {
     },
     energyReq: 2,
     energyGained: 0,
-    damage: 1,
-    damageTimes: 8,
+    damage: 4,
+    damageTimes: 2,
     upgrades: 0,
     action: async (stateObj, monsterIndex, moveIndex, isPlayer) => {
       stateObj = await gainEnergy(stateObj, monsterIndex, moveIndex, isPlayer);
@@ -138,7 +138,7 @@ fullHeal = {
     let textString = `Heal both your monsters back to full`;
     return textString
   },
-  energyReq: 5,
+  energyReq: 6,
   type: "attack",
   energyGained: 0,
   upgrades: 0,
@@ -157,27 +157,25 @@ fullHeal = {
 }
   
 powerFeed = {
-  name: "Power Feed",
+  name: "Dam Burst",
   type: "attack",
   text: (monster, move)  => { 
-    let textString = `Deal ${calcMonsterDamage(monster, move)} damage `;
+    let textString = `Deal ${calcMonsterDamage(monster, move)} damage to both enemies `;
     if (move.damageTimes > 1) {
         textString += `${move.damageTimes} times`
     }
-    textString += `. Heal ${calcMonsterDamage(monster, move)} HP`;
     return textString
   },
-  energyReq: 0,
+  energyReq: 8,
   energyGained: 0,
-  damage: 40,
+  damage: 25,
   damageTimes: 1,
   upgrades: 0,
   action: async (stateObj, monsterIndex, moveIndex, isPlayer) => {
     let monster = (isPlayer) ? stateObj.player.fightMonsterArray[monsterIndex] : stateObj.opponent.fightMonsterArray[monsterIndex] 
     let move =  monster.moves[moveIndex]
     stateObj = await gainEnergy(stateObj, monsterIndex, moveIndex, isPlayer);
-    stateObj = await dealDamage(stateObj, monsterIndex, moveIndex, isPlayer)
-    stateObj = await restoreHP(stateObj, monsterIndex, calcMonsterDamage(monster, move), isPlayer)
+    stateObj = await dealDamageBoth(stateObj, monsterIndex, moveIndex, isPlayer)
     stateObj = await monsterMoved(stateObj, monsterIndex, isPlayer)
     await updateState(stateObj);
     if (!isPlayer) {

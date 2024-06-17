@@ -115,9 +115,9 @@
 .mutation-div {
     background-color: rgb(171, 171, 171);
     font-family: monospace;
-    height: 15vh;
-    width: 18vw;
-    margin: 3vmin;
+    height: 10vh;
+    width: 23vw;
+    margin: 1vmin;
     padding: 0.5vmin;
     transition: 0.5s all;
 }
@@ -150,13 +150,13 @@
 }
 
 .mutations-array-div {
-    margin-top: 5vh;
-    height: 20vh;
-    width: 80vw;
+    margin-top: 20vh;
+    height: 10vh;
+    width: 97vw;
 }
 
 .end-turn-button {
-    height: 15vh;
+    height: 10vh;
     width: 10vw;
     background-color: rgb(87, 248, 87);
 
@@ -167,9 +167,19 @@
     width: 95vw;
 }
 
+body {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.side-div {
+    height: 85vh;
+}
+
 .change-status-button, .choose-monster-button {
     width: 20vw;
-    height: 5vh;
+    height: 3.5vh;
     padding: 0.5vmin;
     background-color: rgb(0, 68, 104);
     color: rgb(232, 232, 232);
@@ -177,7 +187,7 @@
     cursor: pointer;
     box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
     transition: all 0.5s;
-    margin: 0.5vmin
+    margin: 1vmin
 }
 
 .move-to-pick {

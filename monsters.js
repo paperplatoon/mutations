@@ -2,7 +2,7 @@
 
 otter = {
     id: 0,
-    name: "Squirrel",
+    name: "Otter",
     avatar: ["img/otter1.png", "img/otter2.png", "img/otter3.png", "img/otter4.png" ],
     mutations: 0,
     currentHP: 40,
@@ -93,8 +93,8 @@ turtle = {
 bunny = {
   id: 5,
   name: "Bunny",
-  currentHP: 35,
-  maxHP: 35,
+  currentHP: 30,
+  maxHP: 30,
   strength: 0,
   currentEnergy: 0,
   avatar: ["img/bunny1.png", "img/bunny2.png", "img/bunny3.png", "img/bunny4.png" ],
@@ -126,7 +126,7 @@ snake = {
   nextAttackDamage: 0,
 }
 
-enemyArray = [chipmunk, vampireBat, turtle, bunny, snake]
+enemyArray = [chipmunk, vampireBat, turtle, bunny, snake, otter]
 
 
 

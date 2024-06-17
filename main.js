@@ -89,6 +89,45 @@ async function dealDamage(stateObj, monsterIndex, moveIndex, isPlayer, extraDama
     return stateObj
 }
 
+async function dealDamageBoth(stateObj, monsterIndex, moveIndex, isPlayer, extraDamage=0) {
+    stateObj = immer.produce(stateObj, (newState) => {   
+        let targetArray = (isPlayer) ? newState.opponent.fightMonsterArray : newState.player.fightMonsterArray
+        let userMonster = (isPlayer) ? newState.player.fightMonsterArray[monsterIndex] : newState.opponent.fightMonsterArray[monsterIndex]
+        let move = userMonster.moves[moveIndex]
+        let damage = calcMonsterDamage(userMonster, move)
+        damage += extraDamage
+        userMonster.nextAttackDamage = 0
+        for (let i = 0; i < targetArray.length; i++) {
+            targetArray[i].currentHP -= (damage * move.damageTimes) 
+        }
+    })
+    if (isPlayer) {
+        document.querySelectorAll(".player-side-div .avatar")[monsterIndex].classList.remove("player-pulse")
+        document.querySelectorAll(".player-side-div .avatar")[monsterIndex].classList.add("player-windup")
+        for (let i = 0; i < stateObj.opponent.fightMonsterArray.length; i++) {
+            document.querySelectorAll(".opponent-side-div .avatar")[i].classList.add("opponent-impact")
+        }
+        await pause(500)
+        document.querySelectorAll(".player-side-div .avatar")[monsterIndex].classList.remove("player-windup")
+        for (let i = 0; i < stateObj.opponent.fightMonsterArray.length; i++) {
+            document.querySelectorAll(".opponent-side-div .avatar")[i].classList.remove("opponent-impact")
+        }
+    } else {
+        document.querySelectorAll(".opponent-side-div .avatar")[monsterIndex].classList.add("opponent-windup")
+        for (let i = 0; i < stateObj.player.fightMonsterArray.length; i++) {
+            document.querySelectorAll(".player-side-div .avatar")[i].classList.add("player-impact")
+            document.querySelectorAll(".player-side-div .avatar")[i].classList.remove("player-pulse")
+        }
+        await pause(800)
+        document.querySelectorAll(".opponent-side-div .avatar")[monsterIndex].classList.remove("opponent-windup")
+        for (let i = 0; i < stateObj.player.fightMonsterArray.length; i++) {
+            document.querySelectorAll(".player-side-div .avatar")[i].classList.remove("player-impact")
+        }
+    }
+    
+    return stateObj
+}
+
 
 
 function calcMonsterDamage(monster, move) {

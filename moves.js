@@ -35,7 +35,7 @@ coilup = {
   name: "Coil Up",
   type: "attack",
   text: (monster, move)  => { 
-    let textString = `Your next attack deals 1 more damage`;
+    let textString = `Your next attack deals 2 more damage`;
     return textString
   },
   energyReq: 0,
@@ -46,7 +46,7 @@ coilup = {
   energyCost: 0,
   action: async (stateObj, monsterIndex, moveIndex, isPlayer) => {
     stateObj = await gainEnergy(stateObj, monsterIndex, moveIndex, isPlayer);
-    stateObj = await gainNextAttackDamage(stateObj, monsterIndex, 1, isPlayer)
+    stateObj = await gainNextAttackDamage(stateObj, monsterIndex, 2, isPlayer)
     stateObj = await monsterMoved(stateObj, monsterIndex, isPlayer)
     await updateState(stateObj);
     if (!isPlayer) {

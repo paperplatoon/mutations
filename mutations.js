@@ -197,9 +197,11 @@ commonEnergyGainMutation = {
   let uncommonMutationPool = [uncommonAggressionMutation, uncommonBulkMutation, uncommonSpeedMutation, uncommonEnergyMutation]
   let rareMutationPool = [rareAggressionMutation, rareAggressionMutation2, rareBulkMutation, rareSpeedMutation, rareEnergyMutation]
   
-  let startingMutationArray = [commonAggressionMutation, commonAggressionMutation, commonAggressionMutation, commonEnergyGainMutation,
-    uncommonAggressionMutation, uncommonAggressionMutation, commonEnergyGainMutation, commonEnergyMutation, 
-    commonEnergyMutation, commonEnergyMutation, uncommonSpeedMutation, uncommonBulkMutation]
+  let startingMutationArray = [
+    commonAggressionMutation, commonAggressionMutation, commonAggressionMutation, commonAggressionMutation,
+    commonBulkMutation, commonBulkMutation, commonBulkMutation, commonBulkMutation,
+    uncommonBulkMutation, uncommonBulkMutation, uncommonBulkMutation, rareBulkMutation,
+    commonEnergyGainMutation, commonEnergyMutation]
   
 //   let startingMutationArray = [ rareBulkMutation,rareBulkMutation,rareAggressionMutation2,rareAggressionMutation2,
 //   ]
