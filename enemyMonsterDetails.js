@@ -45,7 +45,7 @@ demolish = {
       }
       return textString
     },
-    energyReq: 2,
+    energyReq: 4,
     energyGained: 0,
     damage: 20,
     damageTimes: 1,

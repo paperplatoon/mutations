@@ -12,24 +12,14 @@
 }
 
 .player-move {
-    background-image: linear-gradient(to right, #1673ac 0%, #1eabec  51%, #166190  100%);
+    background-image: linear-gradient(to right, #314755 0%, #26a0da  51%, #314755  100%);
     color: white;
 }
 
 .enemy-move {
-    background: linear-gradient(90deg, rgb(198, 0, 0) 0%, rgb(231, 90, 90) 51%, rgb(186, 0, 0) 100%);
-    background-size: 200% auto;
+    background-image: linear-gradient(to right, #314755 0%, #26a0da  51%, #314755  100%);
     color: white;
-    animation: moveBackground 3s infinite;
 }
-
-@keyframes moveBackground {
-    0% { background-position: left center; }
-    50% { background-position: right center; }
-    100% { background-position: left center; }
-}
-
-
 
 @media (hover: hover) {
     .player-move:hover {
@@ -69,43 +59,23 @@
     flex-shrink: -1;
     border-radius: 2px;
     opacity: 1;
+    transition: 0.5s all;
   }
 
 .space-evenly {
     justify-content: space-evenly;
 }
 
-.monster-div {
-    margin: 2vmin;
-}
-
-.single-energy-div {
-    border-radius: 50%;
-    background-color: white;
-    width: 2vmin;
-    height: 2vmin;
-    margin: 0.2vmin;
-}
-
-.gain-energy-text {
-    color: rgb(155, 235, 155);
-}
-
-.cost-energy-text {
-    color: rgb(235, 155, 155);
-}
-
 .row {
     display: flex;
     flex-direction: row;
-    vertical-align: center;
 }
 
 .move-text-div {
     margin-top: 0.8vh;
 }
 
-.current-monster-energy-div {
+.monster-energy-div {
     padding: 0.5vmin;
     background-color: purple;
     color: white;
@@ -115,11 +85,11 @@
 .mutation-div {
     background-color: rgb(171, 171, 171);
     font-family: monospace;
-    height: 10vh;
-    width: 23vw;
-    margin: 1vmin;
+    height: 15vh;
+    width: 18vw;
+    margin: 3vmin;
     padding: 0.5vmin;
-    transition: 0.5s all;
+    transition: 1s all;
 }
 
 .mutation-name {
@@ -150,13 +120,13 @@
 }
 
 .mutations-array-div {
-    margin-top: 20vh;
-    height: 10vh;
-    width: 97vw;
+    margin-top: 5vh;
+    height: 20vh;
+    width: 80vw;
 }
 
 .end-turn-button {
-    height: 10vh;
+    height: 15vh;
     width: 10vw;
     background-color: rgb(87, 248, 87);
 
@@ -167,19 +137,9 @@
     width: 95vw;
 }
 
-body {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-}
-
-.side-div {
-    height: 85vh;
-}
-
 .change-status-button, .choose-monster-button {
     width: 20vw;
-    height: 3.5vh;
+    height: 5vh;
     padding: 0.5vmin;
     background-color: rgb(0, 68, 104);
     color: rgb(232, 232, 232);
@@ -187,7 +147,7 @@ body {
     cursor: pointer;
     box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
     transition: all 0.5s;
-    margin: 1vmin
+    margin: 0.5vmin
 }
 
 .move-to-pick {
@@ -211,57 +171,47 @@ body {
 }
 
 .player-windup {
-    animation: playerWindup 0.5s forwards ;
+    animation: playerWindup 0.35s forwards ;
   }
 
 @keyframes playerWindup {
     0% { transform: translateX(0); }
-    25% { transform: translateX(-30px); }
-    50% { transform: translateX(100px); }
+    25% { transform: translateX(-20px); }
+    50% { transform: translateX(20px); }
     75% { transform: translateX(10px); }
     100% { transform: translateX(0); }
 }
 
 .opponent-impact {
-    animation: opponentImpact 0.5s forwards ;
+    animation: opponentImpact 0.35s forwards ;
   }
 
 @keyframes opponentImpact {
     0% { transform: translateX(0); }
     80% { transform: translateX(0); }
-    90% { transform: translateX(60px); }
+    90% { transform: translateX(30px); }
     100% { transform: translateX(0); }
 }
 
 .opponent-windup {
-    animation: opponentWindup 0.8s forwards ;
+    animation: opponentWindup 0.3s forwards ;
 }
 
 @keyframes opponentWindup {
     0% { transform: translateX(0); }
-    40% { transform: translateX(20px); }
-    60% { transform: translateX(-100px); }
+    25% { transform: translateX(20px); }
+    50% { transform: translateX(-20px); }
     75% { transform: translateX(-10px); }
     100% { transform: translateX(0); }
 }
 
 .player-impact {
-animation: playerImpact 0.8s forwards ;
+animation: playerImpact 0.2s forwards ;
 }
 
 @keyframes playerImpact {
 0% { transform: translateX(0); }
 85% { transform: translateX(0); }
-92% { transform: translateX(-40px); }
+92% { transform: translateX(-30px); }
 100% { transform: translateX(0); }
-}
-
-.player-pulse {
-    animation: player-pulse 2s infinite;
-}
-
-@keyframes player-pulse {
-    0% { border: 5px dashed blue; }
-    50% { border: 5px dashed rgba(0, 0, 255, 0.24);}
-    100% { border: 5px dashed blue;  }
 }

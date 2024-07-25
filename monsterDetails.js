@@ -283,6 +283,9 @@ rareAggressionMutation = {
   name: "Aggression+ (rare)",
   text: "An attack deals 4-5 more damage",
   pickAttack: true,
+  mutationCheck: (moveObj) => {
+    return moveObj.damage > 0
+  },
   action: async (stateObj, monsterIndex, moveIndex) => {
     if (stateObj.selectedMutationAction) {
       let amountToIncrease = randomIntegerInRange(4, 5)
@@ -297,6 +300,9 @@ uncommonSpeedMutation = {
   name: "Speed+ (uncommon)",
   text: "An attack hits 1 more time",
   pickAttack: true,
+  mutationCheck: (moveObj) => {
+    return moveObj.damageTimes > 0
+  },
   action: async (stateObj, monsterIndex, moveIndex) => {
     if (stateObj.selectedMutationAction) {
       stateObj = await attackTimesIncrease(stateObj, monsterIndex, moveIndex, 1)
@@ -310,6 +316,9 @@ rareSpeedMutation = {
   name: "Speed+ (rare)",
   text: "An attack hits 2 more times",
   pickAttack: true,
+  mutationCheck: (moveObj) => {
+    return moveObj.damageTimes > 0
+  },
   action: async (stateObj, monsterIndex, moveIndex) => {
     if (stateObj.selectedMutationAction) {
       stateObj = await attackTimesIncrease(stateObj, monsterIndex, moveIndex, 2)
@@ -358,8 +367,11 @@ rareBulkMutation = {
 
 commonEnergyMutation = {
   name: "Energy+ (common)",
-  text: "An attack costs one less energy",
-  pickAttack: false,
+  text: "A move costs one less energy",
+  pickAttack: true,
+  mutationCheck: (moveObj) => {
+    return moveObj.energyReq > 0
+  },
   action: async (stateObj, mutationIndex) => {
     stateObj = await startCombatWithEnergyIncrease(stateObj, stateObj.targetedPlayerMonster, 1)
     stateObj = await playerUsedMutation(stateObj, mutationIndex)
@@ -397,5 +409,5 @@ let uncommonMutationPool = [uncommonAggressionMutation, uncommonBulkMutation, un
 let rareMutationPool = [rareAggressionMutation, rareBulkMutation, rareSpeedMutation, rareEnergyMutation]
 
 let startingMutationArray = [commonAggressionMutation, commonAggressionMutation, commonAggressionMutation, commonAggressionMutation,
-  uncommonAggressionMutation, uncommonAggressionMutation, uncommonSpeedMutation, commonBulkMutation, 
-  commonBulkMutation, commonBulkMutation, commonBulkMutation, uncommonBulkMutation]
+  uncommonAggressionMutation, uncommonAggressionMutation, uncommonSpeedMutation, commonEnergyMutation, 
+  commonEnergyMutation, commonEnergyMutation, uncommonSpeedMutation, uncommonBulkMutation]
